@@ -55,8 +55,8 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        new PieceMovesCalculator(board, myPosition);
-        return java.util.List.of();
+        PieceMovesCalculator calculator = new PieceMovesCalculator(board, myPosition);
+        return calculator.pieceMoves(this);
     }
 
     @Override
