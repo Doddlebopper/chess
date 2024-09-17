@@ -3,6 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.HashSet;
 
 public class PieceMovesCalculator {
     private final ChessBoard board;
@@ -39,7 +40,28 @@ public class PieceMovesCalculator {
     }
 
     private Collection<? extends ChessMove> KingMovesCalculator() {
-        return new ArrayList<>();
+        Collection<ChessMove> moves = new HashSet<>();
+        int[][] kingDirections = {
+                {-1,-1}, {-1,0},{-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}
+        };
+
+        for(int[] dir : kingDirections) {
+            int nextRow = position.getRow() + dir[0];
+            int nextCol = position.getColumn() + dir[1];
+
+            if(nextRow >= 0 && nextRow < 8 && nextCol >= 0 && nextCol < 8) {
+                ChessPosition newPosition = new ChessPosition(nextRow, nextCol);
+                ChessPiece newPiece = board.getPiece(newPosition);
+
+                if(newPiece == null || !newPiece.getTeamColor().equals(this.board.getPiece(position).getTeamColor())) {
+                    moves.add(new ChessMove(this.position, newPosition, null));
+                }
+            }
+        }
+
+
+
+        return moves;
     }
 
     private Collection<? extends ChessMove> QueenMovesCalculator() {
@@ -47,6 +69,10 @@ public class PieceMovesCalculator {
     }
 
     private Collection<? extends ChessMove> BishopMovesCalculator() {
+        for(int i = position.getRow(); i <= 8; i++) {
+            for(int j = position.getColumn(); j <= 8; j++) {
+            }
+        }
         return new ArrayList<>();
     }
 
