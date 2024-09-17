@@ -14,6 +14,9 @@ public class ChessPosition {
     private final int col;
 
     public ChessPosition(int row, int col) {
+        if(row < 1 || row > 8 || col < 1 || col > 8) {
+            throw new IllegalArgumentException("Position out of bounds");
+        }
         this.row = row;
         this.col = col;
     }
@@ -45,5 +48,10 @@ public class ChessPosition {
     @Override
     public int hashCode() {
         return Objects.hash(row, col);
+    }
+
+    public String toString() {
+        char colChar = (char) ('a' + col - 1);
+        return "" + colChar + row;
     }
 }

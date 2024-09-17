@@ -12,7 +12,7 @@ import java.util.Objects;
 public class ChessBoard {
     private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
-        
+        resetBoard();
     }
 
     /**
@@ -22,8 +22,14 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+        int row = position.getRow() - 1;
+        int col = position.getColumn() - 1;
 
-        squares[position.getRow()][position.getColumn()] = piece;
+        if(row < 0 || row >= 8 || col < 0 || col >= 8) {
+            throw new IllegalArgumentException("Position out of bounds");
+        }
+
+        squares[row][col] = piece;
     }
 
     /**
@@ -34,7 +40,10 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
-        return squares[position.getRow()][position.getColumn()];
+        int row = position.getRow() -1;
+        int col = position.getColumn() - 1;
+
+        return squares[row][col];
     }
 
     /**
@@ -43,6 +52,18 @@ public class ChessBoard {
      */
     public void resetBoard() {
         squares = new ChessPiece[8][8];
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                ChessPiece piece = squares[i][j];
+                sb.append(piece == null ? "[ ]" : "[" + piece.getPieceType().name().charAt(0)+"]");
+            }
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 
     @Override

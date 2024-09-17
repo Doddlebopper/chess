@@ -45,7 +45,7 @@ public class KingMoveTests {
 
     @Test
     public void kingBlocked() {
-        validateMoves("""
+            validateMoves("""
                         | | | | | | |r|k|
                         | | | | | | |p|p|
                         | | | | | | | | |

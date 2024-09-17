@@ -59,6 +59,10 @@ public class ChessPiece {
         return calculator.pieceMoves(this);
     }
 
+    public String toString() {
+        return pieceColor.name() + " " + type.name();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
