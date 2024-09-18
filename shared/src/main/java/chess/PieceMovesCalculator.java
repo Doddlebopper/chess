@@ -60,17 +60,33 @@ public class PieceMovesCalculator {
 
     private Collection<? extends ChessMove> QueenMovesCalculator() {
         Collection<ChessMove> moves = new HashSet<>();
-        int[][] queenDirections = { {-1,-1}, {-1,0},{-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}};
-        for(int[] dir : queenDirections) {
-            int nextRow = position.getRow() + dir[0];
-            int nextCol = position.getColumn() + dir[1];
 
-            if(nextRow >= 1 && nextRow <= 8 && nextCol >= 1 && nextCol <= 8) {
+        int[][] queenDirections = { {-1,-1}, {-1,0},{-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}};
+
+        for(int[] dir : queenDirections) {
+            int nextRow = position.getRow();
+            int nextCol = position.getColumn();
+
+            while(true) {
+                nextRow += dir[0];
+                nextCol += dir[1];
+
+
+                if(nextRow < 1 || nextRow > 8 || nextCol < 1 || nextCol > 8) {
+                    break;
+                }
+
                 ChessPosition newPosition = new ChessPosition(nextRow, nextCol);
                 ChessPiece newPiece = board.getPiece(newPosition);
 
-                if(newPiece == null || !newPiece.getTeamColor().equals(this.board.getPiece(position).getTeamColor())) {
+                if (newPiece == null) {
                     moves.add(new ChessMove(this.position, newPosition, null));
+                }
+                else {
+                    if (!newPiece.getTeamColor().equals(this.board.getPiece(position).getTeamColor())) {
+                        moves.add(new ChessMove(this.position, newPosition, null));
+                    }
+                    break;
                 }
             }
         }
@@ -114,7 +130,36 @@ public class PieceMovesCalculator {
     }
 
     private Collection<? extends ChessMove> RookMovesCalculator() {
-        return new ArrayList<>();
+        Collection<ChessMove> moves = new HashSet<>();
+
+        int[][] rookDirections = {{1,0},{0,1},{-1,0},{0,-1}};
+
+        for(int[] dir : rookDirections) {
+            int row = position.getRow();
+            int col = position.getColumn();
+
+            while (true) {
+                row += dir[0];
+                col += dir[1];
+
+                if(row < 1 || row > 8 || col < 1 || col > 8) {
+                    break;
+                }
+
+                ChessPosition newPosition = new ChessPosition(row, col);
+                ChessPiece newPiece = board.getPiece(newPosition);
+
+                if (newPiece == null) {
+                    moves.add(new ChessMove(position, newPosition,null)); // Empty square
+                } else if (!newPiece.getTeamColor().equals(this.board.getPiece(position).getTeamColor())) {
+                    moves.add(new ChessMove(position, newPosition,null)); // Capture opponent's piece
+                    break;
+                } else {
+                    break;
+                }
+            }
+        }
+        return moves;
     }
 
     private Collection<? extends ChessMove> PawnMovesCalculator() {
