@@ -126,7 +126,24 @@ public class PieceMovesCalculator {
     }
 
     private Collection<? extends ChessMove> KnightMovesCalculator() {
-        return new ArrayList<>();
+        Collection<ChessMove> moves = new HashSet<>();
+
+        int[][] knightDirections = {{2,1},{2,-1}, {1,2},{-1,2},{-2,1},{-2,-1},{1,-2},{-1,-2}};
+
+        for(int[] dir : knightDirections) {
+            int row = position.getRow() + dir[0];
+            int col = position.getColumn() + dir[1];
+
+            if(row >= 1 && row <= 8 && col >= 1 && col <= 8) {
+                ChessPosition newPosition = new ChessPosition(row,col);
+                ChessPiece newPiece = board.getPiece(newPosition);
+
+                if(newPiece == null || !newPiece.getTeamColor().equals(this.board.getPiece(position).getTeamColor())) {
+                    moves.add(new ChessMove(this.position, newPosition, null));
+                }
+            }
+        }
+        return moves;
     }
 
     private Collection<? extends ChessMove> RookMovesCalculator() {
