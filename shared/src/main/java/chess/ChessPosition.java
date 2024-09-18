@@ -52,6 +52,6 @@ public class ChessPosition {
 
     public String toString() {
         char colChar = (char) ('a' + col - 1);
-        return "" + colChar + row;
+        return " " + colChar + row;
     }
 }

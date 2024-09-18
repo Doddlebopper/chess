@@ -180,6 +180,70 @@ public class PieceMovesCalculator {
     }
 
     private Collection<? extends ChessMove> PawnMovesCalculator() {
-        return new ArrayList<>();
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        int direction = board.getPiece(position).getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+
+        int row = position.getRow();
+        int col = position.getColumn();
+
+        ChessPosition oneSquare = new ChessPosition(row + direction, col);
+        if(row + direction >= 1 && row + direction <= 8 && board.getPiece(oneSquare) == null) {
+            if(row + direction == 8 || row + direction == 1) {
+                moves.addAll(generatePromotionMoves(position, oneSquare));
+            }
+            else {
+                moves.add(new ChessMove(position, oneSquare, null));
+            }
+
+            if((board.getPiece(position).getTeamColor() == ChessGame.TeamColor.WHITE && row == 2) ||
+                    (board.getPiece(position).getTeamColor() == ChessGame.TeamColor.BLACK && row == 7)) {
+
+                ChessPosition twoSquares = new ChessPosition(row + 2 * direction, col);
+                if(board.getPiece(twoSquares) == null) {
+                    moves.add(new ChessMove(position, twoSquares, null));
+                }
+            }
+
+        }
+
+        int newRow = row + direction;
+        int newCol = col - 1;
+
+        if(newCol >= 1 && newRow >= 1 && newRow <= 8) {
+            ChessPosition LCapture = new ChessPosition(newRow, newCol);
+            ChessPiece LPiece = board.getPiece(LCapture);
+            if (LPiece != null && !LPiece.getTeamColor().equals(board.getPiece(position).getTeamColor())) {
+                if (row + direction == 8 || row + direction == 1) {
+                    moves.addAll(generatePromotionMoves(position, LCapture));
+                } else {
+                    moves.add(new ChessMove(position, LCapture, null));
+                }
+            }
+        }
+
+        ChessPosition RCapture = new ChessPosition(row + direction, col + 1);
+        if (col + 1 <= 8 && row + direction >= 1 && row + direction <= 8) {
+            ChessPiece rightPiece = board.getPiece(RCapture);
+            if (rightPiece != null && !rightPiece.getTeamColor().equals(board.getPiece(position).getTeamColor())) {
+                if (row + direction == 8 || row + direction == 1) {
+                    moves.addAll(generatePromotionMoves(position, RCapture));
+                }
+                else {
+                    moves.add(new ChessMove(position, RCapture, null));
+                }
+            }
+        }
+        return moves;
+    }
+
+    private Collection<? extends ChessMove> generatePromotionMoves(ChessPosition start, ChessPosition end) {
+        Collection<ChessMove> promotionMoves = new ArrayList<>();
+
+        promotionMoves.add(new ChessMove(start, end, ChessPiece.PieceType.QUEEN));
+        promotionMoves.add(new ChessMove(start, end, ChessPiece.PieceType.ROOK));
+        promotionMoves.add(new ChessMove(start, end, ChessPiece.PieceType.BISHOP));
+        promotionMoves.add(new ChessMove(start, end, ChessPiece.PieceType.KNIGHT));
+        return promotionMoves;
     }
 }
