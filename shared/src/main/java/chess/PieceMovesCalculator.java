@@ -98,18 +98,18 @@ public class PieceMovesCalculator {
         int[][] bishopDirections = { {1,1}, {1,-1}, {-1,1}, {-1,-1}};
 
         for(int[] dir : bishopDirections) {
-            int row = position.getRow() - 1;
-            int col = position.getColumn() - 1;
+            int row = position.getRow();
+            int col = position.getColumn();
 
             while (true) {
                 row += dir[0];
                 col += dir[1];
 
-                if(row < 0 || row >= 8 || col < 0 || col >= 8) {
+                if(row < 1 || row > 8 || col < 1 || col > 8) {
                     break;
                 }
 
-                ChessPosition newPosition = new ChessPosition(row + 1, col + 1);
+                ChessPosition newPosition = new ChessPosition(row, col);
                 ChessPiece piece = board.getPiece(newPosition);
 
                 if (piece == null) {
