@@ -18,7 +18,10 @@ public class ChessGame {
         this.board = board;
     }
 
-    public ChessGame(){}
+    public ChessGame(){
+        this.teamTurn = TeamColor.WHITE;
+        this.board = new ChessBoard();
+    }
 
     /**
      * @return Which team's turn it is
@@ -54,12 +57,7 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
 
-        if(piece == null) {
-            return null;
-        }
-        else {
-            return piece.pieceMoves(board, startPosition);
-        }
+        return piece.pieceMoves(board, startPosition);
     }
 
     /**
@@ -97,6 +95,18 @@ public class ChessGame {
 
         board.movePiece(start, end);
 
+        //handle case where pawn move = promotion type
+        if(piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            if((piece.getTeamColor() == TeamColor.WHITE && end.getRow() == 8) || (piece.getTeamColor() == TeamColor.BLACK && end.getRow() == 1)) {
+                ChessPiece.PieceType promotionType = move.getPromotionPiece();
+
+                ChessPiece promotePiece = new ChessPiece(piece.getTeamColor(), promotionType);
+
+                board.addPiece(end, promotePiece);
+                board.addPiece(start, null);
+            }
+        }
+
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
@@ -112,8 +122,12 @@ public class ChessGame {
         for(ChessPosition oppPosition : board.getAllPositions()) {
             ChessPiece oppPiece = board.getPiece(oppPosition);
             if(oppPiece != null && oppPiece.getTeamColor() != teamColor) {
-                if(oppPiece.pieceMoves(board, oppPosition).contains(kingPosition)) {
-                    return true;
+                Collection<ChessMove> validMoves = oppPiece.pieceMoves(board, oppPosition);
+
+                for(ChessMove move : validMoves) {
+                    if(move.getEndPosition().equals(kingPosition)) {
+                        return true;
+                    }
                 }
             }
         }
