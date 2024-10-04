@@ -11,10 +11,19 @@ import java.util.Objects;
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
  */
-public class ChessBoard {
+public class ChessBoard implements Cloneable {
     private ChessPiece[][] squares = new ChessPiece[8][8];
     public ChessBoard() {
     }
+
+    public ChessPiece clone() {
+        try {
+            return (ChessPiece) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
 
     /**
      * Adds a chess piece to the chessboard
@@ -47,6 +56,26 @@ public class ChessBoard {
         return squares[row][col];
     }
 
+    public ChessBoard testBoard() {
+        try {
+            ChessBoard clonedBoard = (ChessBoard) super.clone();
+            clonedBoard.squares = new ChessPiece[8][8];
+
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    ChessPiece originalPiece = this.squares[i][j];
+                    if (originalPiece != null) {
+                        clonedBoard.squares[i][j] = originalPiece.clone();
+                    }
+                }
+            }
+
+            return clonedBoard;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();  // Should not happen, since we implement Cloneable
+        }
+    }
+
     /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
@@ -73,11 +102,11 @@ public class ChessBoard {
     }
 
     public ChessPosition findKing(ChessGame.TeamColor team) {
-        for(int row = 0; row < 8; row++) {
-            for(int col = 0; col < 8; col++) {
-                ChessPiece piece = squares[row][col];
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                ChessPiece piece = squares[i][j];
                 if(piece != null && piece.getPieceType() == ChessPiece.PieceType.KING && piece.getTeamColor() == team) {
-                    return new ChessPosition(row + 1, col + 1);
+                    return new ChessPosition(i + 1, j + 1);
                 }
             }
         }
@@ -87,13 +116,26 @@ public class ChessBoard {
     public List<ChessPosition> getAllPositions() {
         List<ChessPosition> positions = new ArrayList<>();
 
-        for(int i = 1; i < 8; i++) {
+        for(int i = 1; i <= 8; i++) {
             for(int j = 1; j <= 8; j++) {
                 positions.add(new ChessPosition(i, j));
             }
         }
-
         return positions;
+    }
+
+    public ChessPiece movePiece(ChessPosition start, ChessPosition end) {
+        ChessPiece pieceToMove = getPiece(start);
+        if(pieceToMove == null) {
+            throw new IllegalArgumentException("Non-existent piece");
+        }
+
+        ChessPiece capturedPiece = getPiece(end);
+
+        addPiece(end, pieceToMove);
+        squares[start.getRow() - 1][start.getColumn() - 1] = null;
+
+        return capturedPiece;
     }
 
     public String toString() {
