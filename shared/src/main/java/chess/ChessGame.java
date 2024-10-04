@@ -111,7 +111,7 @@ public class ChessGame {
 
         for(ChessPosition oppPosition : board.getAllPositions()) {
             ChessPiece oppPiece = board.getPiece(oppPosition);
-            if(oppPiece != null && oppPiece.getTeamColor() != teamColor); {
+            if(oppPiece != null && oppPiece.getTeamColor() != teamColor) {
                 if(oppPiece.pieceMoves(board, oppPosition).contains(kingPosition)) {
                     return true;
                 }
@@ -127,7 +127,25 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if(!isInCheck(teamColor)) {
+            return false;
+        }
+
+        for(ChessPosition position: board.getAllPositions()) {
+            ChessPiece piece = board.getPiece(position);
+            if(piece != null && piece.getTeamColor() == teamColor) {
+                Collection<ChessMove> moves = piece.pieceMoves(board, position);
+                for(ChessMove move : moves) {
+                    ChessBoard tempBoard = board.testBoard();
+                    tempBoard.movePiece(move.getStartPosition(), move.getEndPosition());
+                    if(!isInCheck(teamColor)) {
+                        return false;
+                    }
+
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -145,7 +163,7 @@ public class ChessGame {
         for(ChessPosition position:board.getAllPositions()) {
             ChessPiece piece = board.getPiece(position);
             if(piece != null && piece.getTeamColor() != teamColor) {
-                if(piece.pieceMoves(board, position).isEmpty()) {
+                if(piece.pieceMoves(board,position).isEmpty()) {
                     return true;
                 }
             }

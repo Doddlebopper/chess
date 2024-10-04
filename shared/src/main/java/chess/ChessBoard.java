@@ -16,6 +16,7 @@ public class ChessBoard implements Cloneable {
     public ChessBoard() {
     }
 
+
     public ChessPiece clone() {
         try {
             return (ChessPiece) super.clone();
@@ -124,18 +125,23 @@ public class ChessBoard implements Cloneable {
         return positions;
     }
 
-    public ChessPiece movePiece(ChessPosition start, ChessPosition end) {
+    public void movePiece(ChessPosition start, ChessPosition end) {
         ChessPiece pieceToMove = getPiece(start);
         if(pieceToMove == null) {
             throw new IllegalArgumentException("Non-existent piece");
         }
 
-        ChessPiece capturedPiece = getPiece(end);
+        if(end.getRow() < 1 || end.getRow() > 8 || end.getColumn() < 1 || end.getColumn() > 8) {
+            throw new IllegalArgumentException("Out of Bounds");
+        }
+
+
+        if(start.equals(end)) {
+            throw new IllegalArgumentException("Same Position");
+        }
 
         addPiece(end, pieceToMove);
         squares[start.getRow() - 1][start.getColumn() - 1] = null;
-
-        return capturedPiece;
     }
 
     public String toString() {
