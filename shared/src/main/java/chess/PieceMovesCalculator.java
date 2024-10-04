@@ -159,7 +159,7 @@ public class PieceMovesCalculator {
                 row += dir[0];
                 col += dir[1];
 
-                if(row < 1 || row > 8 || col < 1 || col > 8) {
+                if (row < 1 || row > 8 || col < 1 || col > 8) {
                     break;
                 }
 
@@ -167,9 +167,9 @@ public class PieceMovesCalculator {
                 ChessPiece newPiece = board.getPiece(newPosition);
 
                 if (newPiece == null) {
-                    moves.add(new ChessMove(position, newPosition,null)); // Empty square
+                    moves.add(new ChessMove(position, newPosition, null)); // Empty square
                 } else if (!newPiece.getTeamColor().equals(this.board.getPiece(position).getTeamColor())) {
-                    moves.add(new ChessMove(position, newPosition,null)); // Capture opponent's piece
+                    moves.add(new ChessMove(position, newPosition, null)); // Capture opponent's piece
                     break;
                 } else {
                     break;

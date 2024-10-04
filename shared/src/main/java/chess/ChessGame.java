@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -57,8 +58,25 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
+        if(piece == null) {
+            return null;
+        }
 
-        return piece.pieceMoves(board, startPosition);
+
+        Collection<ChessMove> allMoves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> validMoves = new HashSet<>();
+
+        for(ChessMove move : allMoves) {
+            ChessBoard testBoard = board.testBoard();
+
+            testBoard.movePiece(startPosition, move.getEndPosition());
+
+            ChessGame tempGame = new ChessGame(testBoard, this.getTeamTurn());
+            if(!tempGame.isInCheck(piece.getTeamColor())) {
+                validMoves.add(move);
+            }
+        }
+        return validMoves;
     }
 
     /**
@@ -119,11 +137,12 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         ChessPosition kingPosition = board.findKing(teamColor);
+        ChessBoard testBoard = board.testBoard();
 
-        for(ChessPosition oppPosition : board.getAllPositions()) {
-            ChessPiece oppPiece = board.getPiece(oppPosition);
+        for(ChessPosition oppPosition : testBoard.getAllPositions()) {
+            ChessPiece oppPiece = testBoard.getPiece(oppPosition);
             if(oppPiece != null && oppPiece.getTeamColor() != teamColor) {
-                Collection<ChessMove> validMoves = oppPiece.pieceMoves(board, oppPosition);
+                Collection<ChessMove> validMoves = oppPiece.pieceMoves(testBoard, oppPosition);
 
                 for(ChessMove move : validMoves) {
                     if(move.getEndPosition().equals(kingPosition)) {
