@@ -21,6 +21,7 @@ public class ChessGame {
     public ChessGame(){
         this.teamTurn = TeamColor.WHITE;
         this.board = new ChessBoard();
+        board.resetBoard();
     }
 
     /**
@@ -141,25 +142,29 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        if(!isInCheck(teamColor)) {
+        if (!isInCheck(teamColor)) {
             return false;
         }
 
-        for(ChessPosition position: board.getAllPositions()) {
+        for (ChessPosition position : board.getAllPositions()) {
             ChessPiece piece = board.getPiece(position);
-            if(piece != null && piece.getTeamColor() == teamColor) {
+            if (piece != null && piece.getTeamColor() == teamColor) {
                 Collection<ChessMove> moves = piece.pieceMoves(board, position);
-                for(ChessMove move : moves) {
+                for (ChessMove move : moves) {
                     ChessBoard tempBoard = board.testBoard();
                     tempBoard.movePiece(move.getStartPosition(), move.getEndPosition());
-                    if(!isInCheck(teamColor)) {
+
+                    ChessGame tempGame = new ChessGame();
+                    tempGame.setBoard(tempBoard);
+                    tempGame.setTeamTurn(teamColor);
+
+                    if (!tempGame.isInCheck(teamColor)) {
                         return false;
                     }
-
                 }
             }
         }
-        return true;
+        return true; // No valid moves found; it's checkmate
     }
 
     /**
@@ -176,13 +181,23 @@ public class ChessGame {
 
         for(ChessPosition position:board.getAllPositions()) {
             ChessPiece piece = board.getPiece(position);
-            if(piece != null && piece.getTeamColor() != teamColor) {
-                if(piece.pieceMoves(board,position).isEmpty()) {
-                    return true;
+            if(piece != null && piece.getTeamColor() == teamColor) {
+                Collection<ChessMove> validMoves = piece.pieceMoves(board, position);
+                for(ChessMove move : validMoves) {
+                    ChessBoard testBoard = board.testBoard();
+                    testBoard.movePiece(position, move.getEndPosition());
+
+                    ChessGame tempGame = new ChessGame();
+                    tempGame.setBoard(testBoard);
+                    tempGame.setTeamTurn(teamColor);
+
+                    if(!tempGame.isInCheck(teamColor)) {
+                        return false;
+                    }
                 }
             }
         }
-        return false;
+        return true;
     }
 
     /**
