@@ -90,6 +90,14 @@ public class ChessGame {
 
         ChessBoard simBoard = board.testBoard();
         simBoard.movePiece(start, end);
+
+        if(isInCheck(teamTurn)) {
+            throw new InvalidMoveException("Move puts the team in check");
+        }
+
+        board.movePiece(start, end);
+
+        teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
     /**
@@ -99,7 +107,17 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = board.findKing(teamColor);
+
+        for(ChessPosition oppPosition : board.getAllPositions()) {
+            ChessPiece oppPiece = board.getPiece(oppPosition);
+            if(oppPiece != null && oppPiece.getTeamColor() != teamColor); {
+                if(oppPiece.pieceMoves(board, oppPosition).contains(kingPosition)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
