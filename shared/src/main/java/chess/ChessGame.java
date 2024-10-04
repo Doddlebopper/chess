@@ -114,14 +114,15 @@ public class ChessGame {
 
         board.movePiece(start, end);
 
-        //handle case where pawn move = promotion type
         if(piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             if((piece.getTeamColor() == TeamColor.WHITE && end.getRow() == 8) || (piece.getTeamColor() == TeamColor.BLACK && end.getRow() == 1)) {
+
                 ChessPiece.PieceType promotionType = move.getPromotionPiece();
 
                 ChessPiece promotePiece = new ChessPiece(piece.getTeamColor(), promotionType);
 
                 board.addPiece(end, promotePiece);
+
                 board.addPiece(start, null);
             }
         }
@@ -141,6 +142,7 @@ public class ChessGame {
 
         for(ChessPosition oppPosition : testBoard.getAllPositions()) {
             ChessPiece oppPiece = testBoard.getPiece(oppPosition);
+
             if(oppPiece != null && oppPiece.getTeamColor() != teamColor) {
                 Collection<ChessMove> validMoves = oppPiece.pieceMoves(testBoard, oppPosition);
 
@@ -167,8 +169,10 @@ public class ChessGame {
 
         for (ChessPosition position : board.getAllPositions()) {
             ChessPiece piece = board.getPiece(position);
+
             if (piece != null && piece.getTeamColor() == teamColor) {
                 Collection<ChessMove> moves = piece.pieceMoves(board, position);
+
                 for (ChessMove move : moves) {
                     ChessBoard tempBoard = board.testBoard();
                     tempBoard.movePiece(move.getStartPosition(), move.getEndPosition());
@@ -183,7 +187,7 @@ public class ChessGame {
                 }
             }
         }
-        return true; // No valid moves found; it's checkmate
+        return true;
     }
 
     /**
