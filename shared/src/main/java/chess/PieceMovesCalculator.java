@@ -113,12 +113,12 @@ public class PieceMovesCalculator {
                 ChessPiece piece = board.getPiece(newPosition);
 
                 if (piece == null) {
-                    moves.add(new ChessMove(position, newPosition,null)); // Empty square
+                    moves.add(new ChessMove(position, newPosition,null));
                 } else if (!piece.getTeamColor().equals(this.board.getPiece(position).getTeamColor())) {
-                    moves.add(new ChessMove(position, newPosition,null)); // Capture opponent's piece
-                    break; // Cannot move past the captured piece
+                    moves.add(new ChessMove(position, newPosition,null));
+                    break;
                 } else {
-                    break; // Blocked by own piece
+                    break;
                 }
             }
         }
@@ -167,9 +167,9 @@ public class PieceMovesCalculator {
                 ChessPiece newPiece = board.getPiece(newPosition);
 
                 if (newPiece == null) {
-                    moves.add(new ChessMove(position, newPosition, null)); // Empty square
+                    moves.add(new ChessMove(position, newPosition, null));
                 } else if (!newPiece.getTeamColor().equals(this.board.getPiece(position).getTeamColor())) {
-                    moves.add(new ChessMove(position, newPosition, null)); // Capture opponent's piece
+                    moves.add(new ChessMove(position, newPosition, null));
                     break;
                 } else {
                     break;
