@@ -10,10 +10,15 @@ import java.util.HashSet;
 
 public class GameService {
 
-    static GameDAO gameDao;
-    static AuthDAO authDao;
+    private final GameDAO gameDao;
+    private final AuthDAO authDao;
 
-    public static HashSet<GameData> listGames(String authToken) throws UnauthorizedException {
+    public GameService(GameDAO gameDao, AuthDAO authDao) {
+        this.gameDao = gameDao;
+        this.authDao = authDao;
+    }
+
+    public HashSet<GameData> listGames(String authToken) throws UnauthorizedException {
         try {
             authDao.getAuth(authToken);
         } catch (DataAccessException e) {
@@ -22,7 +27,7 @@ public class GameService {
         return gameDao.listGames();
     }
 
-    public static Object createGame(String gameName) {
+    public Object createGame(String gameName) {
         //FIX BELOW
         ChessGame newChessGame = new ChessGame();
         GameData newGame = new GameData(1, "white","black","ourGame",newChessGame);
@@ -33,7 +38,7 @@ public class GameService {
         return result;
     }
 
-    public static Object joinGame(String authToken, int gameID, String color) throws UnauthorizedException, DataAccessException, BadRequestException {
+    public Object joinGame(String authToken, int gameID, String color) throws UnauthorizedException, DataAccessException, BadRequestException {
         AuthData authData;
         try {
             authData = authDao.getAuth(authToken);
