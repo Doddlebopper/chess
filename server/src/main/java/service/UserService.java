@@ -4,31 +4,48 @@ import dataaccess.AuthDAO;
 import model.AuthData;
 import dataaccess.UserDAO;
 import model.UserData;
+import dataaccess.DataAccessException;
 import java.util.UUID;
 
 public class UserService {
-    UserDAO userDao;
-    AuthDAO authDao;
+    private final UserDAO userDao;
+    private final AuthDAO authDao;
 
-    public AuthData register(UserData user) {
-        return new AuthData(generateToken(), user.getName());
+    public UserService(UserDAO userDao, AuthDAO authDao) {
+        this.userDao = userDao;
+        this.authDao = authDao;
     }
 
-    public static AuthData login(UserData user) {
-        return new AuthData("stringToken",user.getName()); //temp
+    public AuthData register(UserData user) throws DataAccessException {
+        userDao.createUser(user);
+
+        AuthData authData = new AuthData(generateToken(), user.getName());
+        authDao.createAuth(authData);
+        return authData;
     }
 
-    public static Object logout(AuthData auth) {
-        //Logs out the user represented by the authToken
-        return "{}";
+    public AuthData login(String username, String password) throws DataAccessException{
+        if(userDao.authenticate(username, password)) {
+            AuthData authData  = new AuthData(generateToken(), username);
+            authDao.createAuth(authData);
+            return authData;
+        }
+        else {
+            throw new DataAccessException("Invalid username or password");
+        }
+    }
+
+    public void logout(String authToken) throws DataAccessException {
+        authDao.deleteAuth(authToken);
     }
 
     public static String generateToken() {
         return UUID.randomUUID().toString();
     }
 
-    public static void clear() {
-        UserDAO.clear();
+    public void clear() {
+        userDao.clear();
+        authDao.clear();
     }
 
 }

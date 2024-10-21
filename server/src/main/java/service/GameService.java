@@ -5,6 +5,7 @@ import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import dataaccess.DataAccessException;
+import java.util.UUID;
 
 import java.util.HashSet;
 
@@ -12,10 +13,12 @@ public class GameService {
 
     private final GameDAO gameDao;
     private final AuthDAO authDao;
+    private final UserService userService;
 
-    public GameService(GameDAO gameDao, AuthDAO authDao) {
+    public GameService(GameDAO gameDao, AuthDAO authDao, UserService userService) {
         this.gameDao = gameDao;
         this.authDao = authDao;
+        this.userService = userService;
     }
 
     public HashSet<GameData> listGames(String authToken) throws UnauthorizedException {
@@ -27,15 +30,20 @@ public class GameService {
         return gameDao.listGames();
     }
 
-    public Object createGame(String gameName) {
-        //FIX BELOW
+    public int createGame(String authToken, String gameName) throws UnauthorizedException, DataAccessException {
+        AuthData authData;
+        try {
+            authData = authDao.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException();
+        }
+
         ChessGame newChessGame = new ChessGame();
-        GameData newGame = new GameData(1, "white","black","ourGame",newChessGame);
-        //FIX ABOVE
-        //games.add(newGame);
-        StringBuilder result = new StringBuilder("{\"gameID\": ");
-        result.append(newGame.getID());
-        return result;
+        int gameID = generateGameID();
+        GameData newGame = new GameData(gameID, authData.username(), null, gameName, newChessGame);
+
+        gameDao.createGame(newGame);
+        return gameID;
     }
 
     public Object joinGame(String authToken, int gameID, String color) throws UnauthorizedException, DataAccessException, BadRequestException {
@@ -54,7 +62,7 @@ public class GameService {
                 throw new BadRequestException("game not found");
             }
         }catch (DataAccessException e) {
-            throw new BadRequestException("bad request");
+            throw new BadRequestException("can't find game");
         }
 
         String whiteUser = gameData.getWhiteUsername();
@@ -83,5 +91,11 @@ public class GameService {
 
     public void clear() {
         gameDao.clear();
+        authDao.clear();
+        userService.clear();
+    }
+
+    private int generateGameID() {
+        return Math.abs(UUID.randomUUID().hashCode());
     }
 }
