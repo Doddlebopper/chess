@@ -25,7 +25,7 @@ public class GameService {
         try {
             authDao.getAuth(authToken);
         } catch (DataAccessException e) {
-            throw new UnauthorizedException("Invalid username or password");
+            throw new UnauthorizedException("Error: Invalid username or password");
         }
         return gameDao.listGames();
     }
