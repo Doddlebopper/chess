@@ -1,10 +1,9 @@
 package service;
 
-import dataaccess.AuthDAO;
+import dataaccess.*;
 import model.AuthData;
-import dataaccess.UserDAO;
 import model.UserData;
-import dataaccess.DataAccessException;
+
 import java.util.UUID;
 
 public class UserService {
@@ -16,7 +15,11 @@ public class UserService {
         this.authDao = authDao;
     }
 
-    public AuthData register(UserData user) throws DataAccessException {
+    public AuthData register(UserData user) throws DataAccessException, BadRequestException {
+        UserData existingUser = userDao.getUser(user.getName());
+        if(existingUser != null) {
+            throw new DataAccessException("user already exists");
+        }
         userDao.createUser(user);
 
         AuthData authData = new AuthData(generateToken(), user.getName());
@@ -24,18 +27,22 @@ public class UserService {
         return authData;
     }
 
-    public AuthData login(String username, String password) throws DataAccessException{
+    public AuthData login(String username, String password) throws UnauthorizedException, DataAccessException{
         if(userDao.authenticate(username, password)) {
             AuthData authData  = new AuthData(generateToken(), username);
             authDao.createAuth(authData);
             return authData;
         }
         else {
-            throw new DataAccessException("Invalid username or password");
+            throw new UnauthorizedException("Invalid username or password");
         }
     }
 
-    public void logout(String authToken) throws DataAccessException {
+    public void logout(String authToken) throws DataAccessException, UnauthorizedException {
+        AuthData authData = authDao.getAuth(authToken);
+        if(authData == null) {
+            throw new UnauthorizedException("token not found");
+        }
         authDao.deleteAuth(authToken);
     }
 

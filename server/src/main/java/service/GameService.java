@@ -25,7 +25,7 @@ public class GameService {
         try {
             authDao.getAuth(authToken);
         } catch (DataAccessException e) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Invalid username or password");
         }
         return gameDao.listGames();
     }
@@ -35,7 +35,7 @@ public class GameService {
         try {
             authData = authDao.getAuth(authToken);
         } catch (DataAccessException e) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Invalid username or password");
         }
 
         ChessGame newChessGame = new ChessGame();
@@ -51,7 +51,7 @@ public class GameService {
         try {
             authData = authDao.getAuth(authToken);
         } catch(DataAccessException e) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Invalid username or password");
         }
 
         GameData gameData;
