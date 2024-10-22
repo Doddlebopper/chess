@@ -46,12 +46,12 @@ public class GameService {
         return gameID;
     }
 
-    public Object joinGame(String authToken, int gameID, String color) throws UnauthorizedException, DataAccessException, BadRequestException {
+    public void joinGame(String authToken, int gameID, String color) throws UnauthorizedException, DataAccessException, BadRequestException {
         AuthData authData;
         try {
             authData = authDao.getAuth(authToken);
         } catch(DataAccessException e) {
-            throw new UnauthorizedException("Invalid username or password");
+            throw new BadRequestException("Invalid username or password");
         }
 
         GameData gameData;
@@ -84,8 +84,6 @@ public class GameService {
         else {
             throw new BadRequestException("Invalid color");
         }
-
-        return "{}";
     }
 
 
