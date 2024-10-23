@@ -18,28 +18,28 @@ public class PieceMovesCalculator {
         List<ChessMove> moves = new ArrayList<>();
         switch(piece.getPieceType()) {
             case KING:
-                moves.addAll(KingMovesCalculator());
+                moves.addAll(kingMovesCalculator());
                 break;
             case QUEEN:
-                moves.addAll(QueenMovesCalculator());
+                moves.addAll(queenMovesCalculator());
                 break;
             case BISHOP:
-                moves.addAll(BishopMovesCalculator());
+                moves.addAll(bishopMovesCalculator());
                 break;
             case KNIGHT:
-                moves.addAll(KnightMovesCalculator());
+                moves.addAll(knightMovesCalculator());
                 break;
             case ROOK:
-                moves.addAll(RookMovesCalculator());
+                moves.addAll(rookMovesCalculator());
                 break;
             case PAWN:
-                moves.addAll(PawnMovesCalculator());
+                moves.addAll(pawnMovesCalculator());
                 break;
         }
         return moves;
     }
 
-    private Collection<? extends ChessMove> KingMovesCalculator() {
+    private Collection<? extends ChessMove> kingMovesCalculator() {
         Collection<ChessMove> moves = new HashSet<>();
         int[][] kingDirections = { {-1,-1}, {-1,0},{-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}};
         for(int[] dir : kingDirections) {
@@ -58,7 +58,7 @@ public class PieceMovesCalculator {
         return moves;
     }
 
-    private Collection<? extends ChessMove> QueenMovesCalculator() {
+    private Collection<? extends ChessMove> queenMovesCalculator() {
         Collection<ChessMove> moves = new HashSet<>();
 
         int[][] queenDirections = { {-1,-1}, {-1,0},{-1,1}, {0,-1}, {0,1}, {1,-1}, {1,0}, {1,1}};
@@ -93,7 +93,7 @@ public class PieceMovesCalculator {
         return moves;
     }
 
-    private Collection<? extends ChessMove> BishopMovesCalculator() {
+    private Collection<? extends ChessMove> bishopMovesCalculator() {
         Collection<ChessMove> moves = new HashSet<>();
         int[][] bishopDirections = { {1,1}, {1,-1}, {-1,1}, {-1,-1}};
 
@@ -125,7 +125,7 @@ public class PieceMovesCalculator {
         return moves;
     }
 
-    private Collection<? extends ChessMove> KnightMovesCalculator() {
+    private Collection<? extends ChessMove> knightMovesCalculator() {
         Collection<ChessMove> moves = new HashSet<>();
 
         int[][] knightDirections = {{2,1},{2,-1}, {1,2},{-1,2},{-2,1},{-2,-1},{1,-2},{-1,-2}};
@@ -146,7 +146,7 @@ public class PieceMovesCalculator {
         return moves;
     }
 
-    private Collection<? extends ChessMove> RookMovesCalculator() {
+    private Collection<? extends ChessMove> rookMovesCalculator() {
         Collection<ChessMove> moves = new HashSet<>();
 
         int[][] rookDirections = {{1,0},{0,1},{-1,0},{0,-1}};
@@ -179,7 +179,7 @@ public class PieceMovesCalculator {
         return moves;
     }
 
-    private Collection<? extends ChessMove> PawnMovesCalculator() {
+    private Collection<? extends ChessMove> pawnMovesCalculator() {
         Collection<ChessMove> moves = new ArrayList<>();
 
         int direction = board.getPiece(position).getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
@@ -211,26 +211,26 @@ public class PieceMovesCalculator {
         int newCol = col - 1;
 
         if(newCol >= 1 && newRow >= 1 && newRow <= 8) {
-            ChessPosition LCapture = new ChessPosition(newRow, newCol);
-            ChessPiece LPiece = board.getPiece(LCapture);
-            if (LPiece != null && !LPiece.getTeamColor().equals(board.getPiece(position).getTeamColor())) {
+            ChessPosition lCapture = new ChessPosition(newRow, newCol);
+            ChessPiece lPiece = board.getPiece(lCapture);
+            if (lPiece != null && !lPiece.getTeamColor().equals(board.getPiece(position).getTeamColor())) {
                 if (row + direction == 8 || row + direction == 1) {
-                    moves.addAll(generatePromotionMoves(position, LCapture));
+                    moves.addAll(generatePromotionMoves(position, lCapture));
                 } else {
-                    moves.add(new ChessMove(position, LCapture, null));
+                    moves.add(new ChessMove(position, lCapture, null));
                 }
             }
         }
 
-        ChessPosition RCapture = new ChessPosition(row + direction, col + 1);
+        ChessPosition rCapture = new ChessPosition(row + direction, col + 1);
         if (col + 1 <= 8 && row + direction >= 1 && row + direction <= 8) {
-            ChessPiece rightPiece = board.getPiece(RCapture);
+            ChessPiece rightPiece = board.getPiece(rCapture);
             if (rightPiece != null && !rightPiece.getTeamColor().equals(board.getPiece(position).getTeamColor())) {
                 if (row + direction == 8 || row + direction == 1) {
-                    moves.addAll(generatePromotionMoves(position, RCapture));
+                    moves.addAll(generatePromotionMoves(position, rCapture));
                 }
                 else {
-                    moves.add(new ChessMove(position, RCapture, null));
+                    moves.add(new ChessMove(position, rCapture, null));
                 }
             }
         }

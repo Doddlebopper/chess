@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class Server {
 
-    private static final Gson gson = new Gson();
+    private static final Gson GSON = new Gson();
     private final UserService userService;
     private final GameService gameService;
 
@@ -42,7 +42,7 @@ public class Server {
 
         Spark.exception(Exception.class, (exception, request, response) -> {
             response.status(500);
-            response.body(gson.toJson(new ErrorResponse("Internal Server Error: " + exception.getMessage())));
+            response.body(GSON.toJson(new ErrorResponse("Internal Server Error: " + exception.getMessage())));
         });
         
         Spark.init();
@@ -75,7 +75,7 @@ public class Server {
         }
         catch(Exception e) {
             response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
+            return GSON.toJson(new ErrorResponse(e.getMessage()));
         }
     }
 
@@ -83,16 +83,16 @@ public class Server {
         try {
 
             String authToken = request.headers("Authorization");
-            JsonObject requestBody = gson.fromJson(request.body(), JsonObject.class);
+            JsonObject requestBody = GSON.fromJson(request.body(), JsonObject.class);
             String playerColor;
             try {
                 playerColor = requestBody.get("playerColor").getAsString();
             }
             catch(Exception e) {
                 response.status(400);
-                return gson.toJson(new ErrorResponse("bad request"));
+                return GSON.toJson(new ErrorResponse("bad request"));
             }
-            GameData game = gson.fromJson(request.body(), GameData.class);
+            GameData game = GSON.fromJson(request.body(), GameData.class);
             response.status(200);
             response.type("application/json");
             gameService.joinGame(authToken, game.getID(), playerColor);
@@ -100,21 +100,21 @@ public class Server {
         }
         catch(UnauthorizedException e) {
             response.status(401);
-            return gson.toJson(new ErrorResponse("unauthorized"));
+            return GSON.toJson(new ErrorResponse("unauthorized"));
         }
         catch(BadRequestException e) {
             response.status(400);
-            return gson.toJson(new ErrorResponse("bad request"));
+            return GSON.toJson(new ErrorResponse("bad request"));
         }
         catch(DataAccessException e) {
             response.status(403);
-            return gson.toJson(new ErrorResponse("already taken"));
+            return GSON.toJson(new ErrorResponse("already taken"));
         }
     }
 
     private Object createGameHandler(Request request, Response response) {
         String authToken = request.headers("Authorization");
-        GameData game = gson.fromJson(request.body(), GameData.class);
+        GameData game = GSON.fromJson(request.body(), GameData.class);
 
         try {
 
@@ -124,19 +124,19 @@ public class Server {
             int gameID = gameService.createGame(authToken, game.getName());
             response.status(200);
             response.type("application/json");
-            return gson.toJson(new CreateGameResult(gameID));
+            return GSON.toJson(new CreateGameResult(gameID));
         }
         catch(UnauthorizedException e) {
             response.status(401);
-            return gson.toJson(new ErrorResponse("unauthorized"));
+            return GSON.toJson(new ErrorResponse("unauthorized"));
         }
         catch (BadRequestException e) {
             response.status(400);
-            return gson.toJson(new ErrorResponse("bad request"));
+            return GSON.toJson(new ErrorResponse("bad request"));
         }
         catch (Exception e) {
             response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
+            return GSON.toJson(new ErrorResponse(e.getMessage()));
         }
 
     }
@@ -148,15 +148,15 @@ public class Server {
             response.status(200);
             response.type("application/json");
             var games = gameService.listGames(authToken);
-            return gson.toJson(new GamesResponse(games));
+            return GSON.toJson(new GamesResponse(games));
         }
         catch(UnauthorizedException e) {
             response.status(401);
-            return gson.toJson(new ErrorResponse("unauthorized"));
+            return GSON.toJson(new ErrorResponse("unauthorized"));
         }
         catch (Exception e) {
             response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
+            return GSON.toJson(new ErrorResponse(e.getMessage()));
 
         }
     }
@@ -171,55 +171,55 @@ public class Server {
         }
         catch(UnauthorizedException e) {
             response.status(401);
-            return gson.toJson(new ErrorResponse("unauthorized"));
+            return GSON.toJson(new ErrorResponse("unauthorized"));
         }
         catch(DataAccessException e) {
             response.status(401);
-            return gson.toJson(new ErrorResponse("invalid"));
+            return GSON.toJson(new ErrorResponse("invalid"));
         }
         catch(Exception e) {
             response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
+            return GSON.toJson(new ErrorResponse(e.getMessage()));
         }
 
     }
 
     private Object loginHandler(Request request, Response response) {
-        UserData user = gson.fromJson(request.body(), UserData.class);
+        UserData user = GSON.fromJson(request.body(), UserData.class);
         try {
             AuthData auth = userService.login(user.getName(), user.getPass());
             response.status(200);
             response.type("application/json");
-            return gson.toJson(auth);
+            return GSON.toJson(auth);
 
         } catch (DataAccessException e) {
             response.status(401);
-            return gson.toJson(new ErrorResponse("Invalid username or password"));
+            return GSON.toJson(new ErrorResponse("Invalid username or password"));
         } catch (UnauthorizedException e) {
             response.status(401);
-            return gson.toJson(new ErrorResponse("unauthorized"));
+            return GSON.toJson(new ErrorResponse("unauthorized"));
         }
     }
 
     private Object registerHandler(Request request, Response response) {
-        UserData user = gson.fromJson(request.body(), UserData.class);
+        UserData user = GSON.fromJson(request.body(), UserData.class);
         try {
             AuthData auth = userService.register(user);
             response.status(200);
             response.type("application/json");
-            return gson.toJson(auth);
+            return GSON.toJson(auth);
         }
         catch(BadRequestException e) {
             response.status(400);
-            return gson.toJson(new ErrorResponse("bad request"));
+            return GSON.toJson(new ErrorResponse("bad request"));
         }
         catch(DataAccessException e) {
             response.status(403);
-            return gson.toJson(new ErrorResponse("already taken"));
+            return GSON.toJson(new ErrorResponse("already taken"));
         }
         catch(Exception e) {
             response.status(500);
-            return gson.toJson(new ErrorResponse(e.getMessage()));
+            return GSON.toJson(new ErrorResponse(e.getMessage()));
         }
     }
 
