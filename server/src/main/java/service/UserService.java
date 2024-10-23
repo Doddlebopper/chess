@@ -18,7 +18,13 @@ public class UserService {
     public AuthData register(UserData user) throws DataAccessException, BadRequestException {
         UserData existingUser = userDao.getUser(user.getName());
         if(existingUser != null) {
+            if(existingUser.getName().equals(user.getName())) {
+                throw new DataAccessException("Cannot register the same user twice");
+            }
             throw new BadRequestException("user already exists");
+        }
+        if(user.getPass() == null || user.getPass().isEmpty()) {
+            throw new BadRequestException("Password required");
         }
         userDao.createUser(user);
 
@@ -30,6 +36,7 @@ public class UserService {
     public AuthData login(String username, String password) throws UnauthorizedException, DataAccessException{
         if(userDao.authenticate(username, password)) {
             AuthData authData  = new AuthData(generateToken(), username);
+
             authDao.createAuth(authData);
             return authData;
         }

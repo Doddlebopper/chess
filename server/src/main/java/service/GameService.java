@@ -40,18 +40,18 @@ public class GameService {
 
         ChessGame newChessGame = new ChessGame();
         int gameID = generateGameID();
-        GameData newGame = new GameData(gameID, authData.username(), null, gameName, newChessGame);
+        GameData newGame = new GameData(gameID, null, null, gameName, newChessGame);
 
         gameDao.createGame(newGame);
         return gameID;
     }
 
     public void joinGame(String authToken, int gameID, String color) throws UnauthorizedException, DataAccessException, BadRequestException {
-        AuthData authData;
+        AuthData authData = null;
         try {
             authData = authDao.getAuth(authToken);
         } catch(DataAccessException e) {
-            throw new BadRequestException("Invalid username or password");
+            throw new UnauthorizedException("Invalid username or password");
         }
 
         GameData gameData;
@@ -76,7 +76,7 @@ public class GameService {
         }
         else if(color.equals("BLACK")) {
             if(blackUser != null) {
-                throw new BadRequestException("Black user already exists");
+                throw new DataAccessException("Black user already exists");
             }
             gameDao.assignBlackPlayer(gameID, authData.username());
 

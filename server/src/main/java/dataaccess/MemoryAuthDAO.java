@@ -35,6 +35,7 @@ public class MemoryAuthDAO implements AuthDAO {
         }
     }
 
+
     @Override
     public void clear() {
         authTokens.clear();
