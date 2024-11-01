@@ -115,7 +115,21 @@ public class StandardDAOTests {
 
         assertEquals(null, exception.getMessage(), "WRONG AUTH TOKEN! FIX IT NOW!");
     }
-    
+
+    @Test
+    @DisplayName("Join game with invalid color")
+    public void joinGameWithInvalidColor() throws Exception {
+        int gameID = gameService.createGame(authToken, "Test Game");
+
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> {
+            gameService.joinGame(authToken, gameID, "INVALID_COLOR");
+        });
+
+        assertEquals("Invalid color", exception.getMessage(), "WHERE WAS THE INVALID ERROR? NO ERROR? NO LIFE? YOU SUCK AT EVERYTHING!");
+    }
+
+
+
 
 
 
