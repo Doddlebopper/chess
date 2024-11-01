@@ -67,5 +67,23 @@ public class StandardDAOTests {
         assertEquals("Test Game", retrievedGame.getName(), "THEIR NAMES DIDNT MATCH!!!!");
     }
 
+    @Test
+    @DisplayName("Delete Game")
+    public void deleteGameTest() throws DataAccessException, UnauthorizedException {
+        int gameID = gameService.createGame(authToken, "testDeleteGame");
+        gameDao.deleteGame(gameID);
+        assertThrows(DataAccessException.class, () -> gameDao.getGame(gameID), "WHY WAS THE GAME FOUND! YOU IDIOT! DELETE THE GAME!");
+    }
+
+    @Test
+    @DisplayName("Clear Database")
+    public void clearDatabaseTest() throws DataAccessException {
+        gameService.clear();
+        userService.clear();
+        assertTrue(gameDao.listGames().isEmpty(), "WHY ARENT THE TABLES EMPTY??");
+    }
+
+
+
 
 }
