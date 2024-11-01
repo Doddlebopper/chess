@@ -93,4 +93,6 @@ public class SQLAuthDAO implements AuthDAO {
             System.err.println("Unable to clear from database");
         }
     }
+
+
 }

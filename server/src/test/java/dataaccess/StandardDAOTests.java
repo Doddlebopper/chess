@@ -77,11 +77,49 @@ public class StandardDAOTests {
 
     @Test
     @DisplayName("Clear Database")
-    public void clearDatabaseTest() throws DataAccessException {
+    public void clearDatabaseTest(){
         gameService.clear();
         userService.clear();
         assertTrue(gameDao.listGames().isEmpty(), "WHY ARENT THE TABLES EMPTY??");
     }
+
+    @Test
+    @DisplayName("Register user with existing username")
+    public void registerUserWithExistingUsername() throws DataAccessException, BadRequestException {
+        UserData user = new UserData("duplicateUser", "password", "user@example.com");
+        userService.register(user);
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            userService.register(user);
+        });
+
+        assertEquals("Cannot register the same user twice", exception.getMessage(), "WHERE WAS THE ERROR? NO ERROR? NO GIRLFRIEND? GET A LIFE!");
+    }
+
+    @Test
+    @DisplayName("Login with non-existing user")
+    public void loginNonExistingUser() {
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            userService.login("nonExistingUser", "password");
+        });
+
+        assertEquals("User not found", exception.getMessage(), "INVALID USER NAME AND PASSWORD ERROR! UH OH ! ");
+    }
+
+    @Test
+    @DisplayName("Create game with invalid auth token")
+    public void createGameWithInvalidAuthToken() {
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
+            gameService.createGame("invalidAuthToken", "Test Game");
+        });
+
+        assertEquals(null, exception.getMessage(), "WRONG AUTH TOKEN! FIX IT NOW!");
+    }
+    
+
+
+
+
 
 
 
