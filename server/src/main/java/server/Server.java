@@ -14,6 +14,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class Server {
+    GameDAO sqlGame;
+    UserDAO sqlUser;
+    AuthDAO sqlAuth;
 
     private static final Gson GSON = new Gson();
     private final UserService userService;
@@ -25,6 +28,10 @@ public class Server {
     }
 
     public Server() {
+        sqlGame = new SQLGameDAO();
+        sqlUser = new SQLUserDAO();
+        sqlAuth = new SQLAuthDAO();
+
         GameDAO gameDao = new MemoryGameDAO();
         AuthDAO authDao = new MemoryAuthDAO();
         UserDAO userDao = new MemoryUserDAO();
