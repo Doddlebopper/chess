@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -127,6 +128,37 @@ public class StandardDAOTests {
 
         assertEquals("Invalid color", exception.getMessage(), "WHERE WAS THE INVALID ERROR? NO ERROR? NO LIFE? YOU SUCK AT EVERYTHING!");
     }
+
+    @Test
+    @DisplayName("Update Existing Game - Success")
+    public void updateExistingGame() throws DataAccessException {
+        ChessGame chessGame = new ChessGame();
+        GameData originalGame = new GameData(1, "Player1", "Player2", "TestGame", chessGame);
+        gameDao.createGame(originalGame);
+
+        GameData updatedGame = new GameData(1, "UpdatedPlayer1", "UpdatedPlayer2", "UpdatedGameName", chessGame);
+        gameDao.updateGame(updatedGame);
+
+        GameData retrievedGame = gameDao.getGame(1);
+        assertEquals("UpdatedPlayer1", retrievedGame.whiteUsername(), "White username was not updated correctly");
+        assertEquals("UpdatedPlayer2", retrievedGame.blackUsername(), "Black username was not updated correctly");
+        assertEquals("UpdatedGameName", retrievedGame.gameName(), "Game name was not updated correctly");
+    }
+
+    @Test
+    @DisplayName("Update Non-Existing Game - Failure")
+    public void updateNonExistingGame() {
+        ChessGame chessGame = new ChessGame();
+        GameData nonExistingGame = new GameData(999, "NonExistingPlayer1", "NonExistingPlayer2", "NonExistingGameName", chessGame);
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            gameDao.updateGame(nonExistingGame);
+        });
+
+        assertEquals("Item requested to be updated not found", exception.getMessage(), "Exception message did not match expected");
+    }
+
+
 
 
 

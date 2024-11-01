@@ -96,4 +96,6 @@ public class StandardServiceTests {
         assertEquals("Not Found", exception.getMessage(), "Expected invalid username/password error");
     }
 
+
+
 }
