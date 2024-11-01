@@ -54,12 +54,15 @@ public class SQLUserDAO implements UserDAO {
                         return new UserData(username, password, email);
                     }
                     else {
-                        throw new DataAccessException("User not found");
+                        return null;
                     }
+
+
+
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("User not found: " + username);
+            throw new DataAccessException("Error accessing user data: " + e.getMessage());
         }
     }
 

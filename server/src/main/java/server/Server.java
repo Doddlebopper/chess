@@ -28,13 +28,9 @@ public class Server {
     }
 
     public Server() {
-        sqlGame = new SQLGameDAO();
-        sqlUser = new SQLUserDAO();
-        sqlAuth = new SQLAuthDAO();
-
-        GameDAO gameDao = new MemoryGameDAO();
-        AuthDAO authDao = new MemoryAuthDAO();
-        UserDAO userDao = new MemoryUserDAO();
+        GameDAO gameDao = new SQLGameDAO();
+        AuthDAO authDao = new SQLAuthDAO();
+        UserDAO userDao = new SQLUserDAO();
         this.userService = new UserService(userDao, authDao);
         this.gameService = new GameService(gameDao, authDao, userService);
     }
@@ -222,7 +218,7 @@ public class Server {
         }
         catch(DataAccessException e) {
             response.status(403);
-            return GSON.toJson(new ErrorResponse("already taken"));
+            return GSON.toJson(new ErrorResponse("already taken" + e));
         }
         catch(Exception e) {
             response.status(500);
