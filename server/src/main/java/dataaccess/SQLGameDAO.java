@@ -177,11 +177,13 @@ public class SQLGameDAO implements GameDAO {
         }
     }
 
+    private static final Gson gson = new Gson();
+
     private String gameSerialize(ChessGame game) {
-        return new Gson().toJson(game);
+        return gson.toJson(game);
     }
 
     private ChessGame gameDeserialize(String game) {
-        return new Gson().fromJson(game, ChessGame.class);
+        return gson.fromJson(game, ChessGame.class);
     }
 }
