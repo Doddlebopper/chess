@@ -90,7 +90,7 @@ public class SQLAuthDAO implements AuthDAO {
                 throw new DataAccessException("Error clearing auth table");
             }
         }catch (SQLException | DataAccessException e) {
-            System.err.println("Error clearing from database");
+            System.err.println("Unable to clear from database");
         }
     }
 }
