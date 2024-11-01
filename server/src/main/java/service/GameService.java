@@ -47,9 +47,9 @@ public class GameService {
     }
 
     public void joinGame(String authToken, int gameID, String color) throws UnauthorizedException, DataAccessException, BadRequestException {
-        AuthData authData = null;
+        AuthData authData;
         try {
-            authData = authDao.getAuth(authToken);
+        authData = authDao.getAuth(authToken);
         } catch(DataAccessException e) {
             throw new UnauthorizedException("Invalid username or password");
         }

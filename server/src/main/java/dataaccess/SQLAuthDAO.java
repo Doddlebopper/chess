@@ -37,7 +37,7 @@ public class SQLAuthDAO implements AuthDAO {
                 try (var results = statement.executeQuery()) {
                     if(results.next()) {
                         var username = results.getString("username");
-                        return new AuthData(username, authToken);
+                        return new AuthData(authToken, username);
                     }
                     else {
                         throw new DataAccessException("Auth token doesn't exist");
