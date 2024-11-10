@@ -7,7 +7,6 @@ import java.util.HashSet;
 
 import static java.lang.System.out;
 import static ui.EscapeSequences.*;
-import static ui.EscapeSequences.SET_TEXT_COLOR_BLACK;
 
 public class CreateBoard {
     ChessGame game;
@@ -39,7 +38,7 @@ public class CreateBoard {
 
             for (int i = 8; i > 0; i--) {
                 int row = !reversed ? i : (i * -1) + 9;
-                output.append(otherRows(row, reversed, selectedPos, possibleSquares));
+                output.append(otherRows(row, reversed, possibleSquares));
             }
 
             output.append(firstRow(reversed));
@@ -49,35 +48,27 @@ public class CreateBoard {
         }
         output.append(RESET_TEXT_BOLD_FAINT);
         out.println(output);
-        out.printf("Turn: %s\n", game.getTeamTurn().toString());
     }
 
     private String firstRow(boolean reversed) {
-        StringBuilder output = new StringBuilder();
-        output.append(SET_BG_COLOR_BLACK);
-        output.append(SET_TEXT_COLOR_BLUE);
-        output.append(!reversed ? "    a  b  c  d  e  f  g  h    " : "    h  g  f  e  d  c  b  a    ");
-        output.append(RESET_BG_COLOR);
-        output.append(RESET_TEXT_COLOR);
-        output.append("\n");
-        return output.toString();
+        String rowLabel = reversed ? "    h  g  f  e  d  c  b  a    " : "    a  b  c  d  e  f  g  h    ";
+        return SET_BG_COLOR_WHITE + SET_TEXT_COLOR_GREEN + rowLabel + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
     }
 
-    private String otherRows(int row, boolean reversed, ChessPosition startingSquare, HashSet<ChessPosition> highlightedSquares) {
+    private String otherRows(int row, boolean reversed, HashSet<ChessPosition> highlightedSquares) {
         StringBuilder output = new StringBuilder();
-        output.append(SET_BG_COLOR_BLACK);
-        output.append(SET_TEXT_COLOR_BLUE);
+        output.append(SET_BG_COLOR_WHITE);
+        output.append(SET_TEXT_COLOR_GREEN);
         output.append(" %d ".formatted(row));
 
         for (int i = 1; i < 9; i++) {
             int column = !reversed ? i : (i * -1) + 9;
-            output.append(squareColor(row, column, startingSquare, highlightedSquares));
+            output.append(squareColor(row, column, highlightedSquares));
             output.append(piece(row, column));
         }
 
-
-        output.append(SET_BG_COLOR_BLACK);
-        output.append(SET_TEXT_COLOR_BLUE);
+        output.append(SET_BG_COLOR_WHITE);
+        output.append(SET_TEXT_COLOR_GREEN);
         output.append(" %d ".formatted(row));
         output.append(RESET_BG_COLOR);
         output.append(RESET_TEXT_COLOR);
@@ -86,9 +77,15 @@ public class CreateBoard {
         return output.toString();
     }
 
-    private String squareColor(int row, int column, ChessPosition startingSquare, HashSet<ChessPosition> highlightedSquares) {
-        return (highlightedSquares.contains(new ChessPosition(row, column)) ? SET_BG_COLOR_YELLOW :
-                (row + column) % 2 == 0 ? SET_BG_COLOR_WHITE : SET_BG_COLOR_DARK_GREY);
+    private String squareColor(int row, int column, HashSet<ChessPosition> highlightedSquares) {
+        ChessPosition square = new ChessPosition(row, column);
+        if (highlightedSquares.contains(square)) {
+            return SET_BG_COLOR_DARK_GREEN;
+        } else if ((row + column) % 2 == 0) {
+            return SET_BG_COLOR_BLUE;
+        } else {
+            return SET_BG_COLOR_MAGENTA;
+        }
     }
 
     private String piece(int row, int column) {
@@ -97,21 +94,17 @@ public class CreateBoard {
         ChessPiece piece = game.getBoard().getPiece(position);
 
         if (piece != null) {
-
-            output.append(piece.getTeamColor() == ChessGame.TeamColor.WHITE
-                    ? SET_TEXT_COLOR_WHITE
-                    : SET_TEXT_COLOR_BLACK);
-
-            output.append(switch (piece.getPieceType()) {
-                case QUEEN -> WHITE_QUEEN;
-                case KING -> WHITE_KING;
-                case BISHOP -> WHITE_BISHOP;
-                case KNIGHT -> WHITE_KNIGHT;
-                case ROOK -> WHITE_ROOK;
-                case PAWN -> WHITE_PAWN;
-            });
+            output.append(piece.getTeamColor() == ChessGame.TeamColor.WHITE ? SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK);
+            output.append(" ").append(switch (piece.getPieceType()) {
+                case QUEEN -> "Q";
+                case KING -> "K";
+                case BISHOP -> "B";
+                case KNIGHT -> "N";
+                case ROOK -> "R";
+                case PAWN -> "P";
+            }).append(" ");
         } else {
-            output.append(EMPTY);
+            output.append("   ");
         }
 
         return output.toString();
