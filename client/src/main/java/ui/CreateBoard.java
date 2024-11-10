@@ -19,7 +19,19 @@ public class CreateBoard {
         this.game = new ChessGame();
     }
 
-    public void printBoard(ChessGame.TeamColor color, ChessPosition selectedPos) {
+    public void printBoard(ChessPosition selectedPos) {
+
+        String output = SET_TEXT_BOLD +
+                "\nWhite\n" +
+                generateBoard(ChessGame.TeamColor.WHITE, selectedPos) +
+                "\n" +
+                "\nBlack\n" +
+                generateBoard(ChessGame.TeamColor.BLACK, selectedPos) +
+                RESET_TEXT_BOLD_FAINT;
+        out.println(output);
+    }
+
+    public String generateBoard(ChessGame.TeamColor color, ChessPosition selectedPos) {
         StringBuilder output = new StringBuilder();
         output.append(SET_TEXT_BOLD);
 
@@ -47,7 +59,7 @@ public class CreateBoard {
             reversed = !reversed;
         }
         output.append(RESET_TEXT_BOLD_FAINT);
-        out.println(output);
+        return output.toString();
     }
 
     private String firstRow(boolean reversed) {
