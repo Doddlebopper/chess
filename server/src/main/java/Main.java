@@ -1,4 +1,3 @@
-import chess.*;
 import dataaccess.*;
 import server.Server;
 
