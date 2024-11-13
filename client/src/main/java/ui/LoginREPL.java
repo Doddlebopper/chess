@@ -28,14 +28,28 @@ public class LoginREPL {
                 case "register":
                     if (input.length > 4) {
                         out.println("Please only provide a username, password, and email");
+                        break;
                     }
                     else if(input.length < 4) {
                         out.println("Please provide a username, password, and email");
+                        break;
                     }
                     if (facade.register(input[1], input[2], input[3])) {
-                        out.println("You are now registered and logged in");
-                        login = true;
-                        break;
+                        out.println("You are now registered! Would you like to log in? (yes/no)");
+
+                        Scanner scanner = new Scanner(System.in);
+                        String response = scanner.nextLine().trim();
+                        if(response.equalsIgnoreCase("yes")) {
+                            login = true;
+                            break;
+                        }
+                        else if (response.equalsIgnoreCase("no")) {
+                            break;
+                        }
+                        else {
+                            out.println("Invalid response. Returning to the main menu.");
+                            break;
+                        }
                     } else {
                         out.println("Username already in use, please choose a new one");
                         break;
@@ -46,7 +60,6 @@ public class LoginREPL {
                         break;
                     }
                     if(facade.login(input[1], input[2])) {
-                        out.println("You are now logged in!");
                         login = true;
                         break;
                     }
@@ -59,6 +72,7 @@ public class LoginREPL {
                 default:
                     out.println("Command not recognized, please try again!");
                     printHelpPre();
+                    break;
             }
         }
 
@@ -70,15 +84,18 @@ public class LoginREPL {
         List<GameData> games = new ArrayList<>();
 
         out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
+        out.println("You are now logged in! Type 'help' to get started!");
         while(login && !inGame) {
             String[] input = getUserInputPost();
             switch(input[0]) {
                 case "help":
                     printHelpPost();
+                    break;
                 case "logout":
                     facade.logout();
                     login = false;
                     preLoginRun();
+                    break;
                 case "list":
                     HashSet<GameData> gameList = facade.listGames();
                     games.addAll(gameList);
@@ -98,8 +115,10 @@ public class LoginREPL {
                     break;
                 case "join":
                     facade.joinGame();
+                    break;
                 case "observe":
                     facade.observeGame();
+                    break;
                 case "quit":
                     return;
                 default:
