@@ -9,7 +9,7 @@ public class Main {
         ServerFacade facade = new ServerFacade();
 
         LoginREPL login = new LoginREPL(facade);
-        login.run();
+        login.preLoginRun();
         System.out.println("Done!");
     }
 }

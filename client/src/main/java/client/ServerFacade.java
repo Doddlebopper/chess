@@ -42,16 +42,12 @@ public class ServerFacade {
         return http.listGames();
     }
 
-    public boolean joinGame(int gameID, String playerColor) {
-        return http.joinGame(gameID, playerColor);
-    }
-
-    public void playGame() {
+    public void joinGame() {
         CreateBoard board = new CreateBoard();
         board.printBoard(null);
     }
 
-    public void joinObserver() {
+    public void observeGame() {
         CreateBoard board = new CreateBoard();
         board.printBoard(null);
     }
