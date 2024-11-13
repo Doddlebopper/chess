@@ -30,12 +30,24 @@ public class HTTPCommunicator {
 
     public boolean register(String username, String password, String email) {
         var body = Map.of("username", username, "password", password, "email", email);
-        var jsonBody = new Gson().toJson(body);
+        var jsonBody = gson.toJson(body);
+
         Map resp = request("POST", "/user", jsonBody);
-        if (resp.containsKey("Error")) {
+        System.out.println("Server response: " + resp);
+
+        if (resp == null || resp.containsKey("Error:")) {
+            System.err.println("Registration failed: " + resp.get("Error"));
             return false;
         }
-        myFacade.setAuthToken((String) resp.get("authToken"));
+
+        if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
+            System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
+            return false;
+        }
+
+
+
+            myFacade.setAuthToken((String) resp.get("authToken"));
         return true;
     }
 
@@ -124,19 +136,9 @@ public class HTTPCommunicator {
                 //System.out.println("HTTP Response: " + respMap);
                 return respMap;
             }
-
-        } catch (URISyntaxException e) {
-            System.err.println("URI Syntax Error: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        } catch (IOException e) {
-            System.err.println("I/O Error: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        } catch (Exception e) {
-            System.err.println("Unexpected Error: " + e.getMessage());
-            e.printStackTrace();
-            return null;
+        }
+        catch (IOException | URISyntaxException e) {
+            throw new RuntimeException(e);
         }
     }
 
