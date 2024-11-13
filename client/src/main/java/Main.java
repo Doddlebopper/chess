@@ -1,10 +1,15 @@
 import chess.*;
-import ui.CreateBoard;
+import client.ServerFacade;
+import ui.LoginREPL;
 
 public class Main {
-    public static void main(String[] args) {
-        ChessGame game = new ChessGame();
-        CreateBoard board = new CreateBoard(game);
-        board.printBoard(null);
+    public static void main(String[] args) throws Exception {
+        System.out.println("♕ 240 Chess Client:");
+
+        ServerFacade facade = new ServerFacade();
+
+        LoginREPL login = new LoginREPL(facade);
+        login.run();
+        System.out.println("Done!");
     }
 }
