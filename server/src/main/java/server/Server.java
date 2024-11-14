@@ -80,7 +80,7 @@ public class Server {
             return GSON.toJson(new ErrorResponse(e.getMessage()));
         }
     }
-
+    //simple public function to call for ServerFacadeTests
     public void clearForTesting() {
         gameService.clear();
         userService.clear();
