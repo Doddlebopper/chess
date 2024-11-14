@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import model.GameData;
 
 import java.util.HashSet;
@@ -38,8 +39,8 @@ public class ServerFacade {
         return http.listGames();
     }
 
-    public boolean joinGame() {
-        return http.joinGame();
+    public boolean joinGame(int ID, String color) {
+        return http.joinGame(ID, color);
     }
 
     public void observeGame() {
@@ -56,4 +57,5 @@ public class ServerFacade {
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
+
 }

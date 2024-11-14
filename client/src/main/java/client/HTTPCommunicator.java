@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.GameData;
 import ui.CreateBoard;
@@ -21,6 +22,7 @@ public class HTTPCommunicator {
         this.myFacade = facade;
     }
 
+
     public static class ListGames {
         private HashSet<GameData> games;
 
@@ -34,7 +36,7 @@ public class HTTPCommunicator {
         var jsonBody = gson.toJson(body);
 
         Map resp = request("POST", "/user", jsonBody);
-        System.out.println("Server response: " + resp);
+        //System.out.println("Server response: " + resp);
 
         if (resp == null || resp.containsKey("Error:")) {
             System.err.println("Registration failed: " + resp.get("Error"));
@@ -103,32 +105,27 @@ public class HTTPCommunicator {
         return true;
     }
 
-    public boolean joinGame() {
-
-        Map resp = request("PUT", "/game", null);
-        if(resp == null) {
-            return true;
-        }
-
-        if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
-            System.err.println("Error joining game: " + resp.get("Error") + " or " + resp.get("message"));
+    public boolean joinGame(int ID, String color) {
+        if(ID == 0) {
             return false;
         }
-        CreateBoard board = new CreateBoard();
-        board.printBoard(null);
+        Map body;
+        if (color != null) {
+            body = Map.of("gameID", ID, "playerColor", color);
+        } else {
+            body = Map.of("gameID", ID);
+        }
+        var jsonBody = new Gson().toJson(body);
+        Map resp = request("PUT", "/game", jsonBody);
         return true;
     }
 
     public void observeGame() {
-        Map resp = request("PUT", "/game", null);
+        Map<String, Object> resp = request("PUT", "/game", null);
         if(resp == null) {
             return;
         }
 
-        if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
-            System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
-            return;
-        }
         CreateBoard board = new CreateBoard();
         board.printBoard(null);
     }

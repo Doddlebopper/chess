@@ -9,6 +9,7 @@ import static ui.EscapeSequences.*;
 
 public class LoginREPL {
     private final ServerFacade facade;
+    List<GameData> games;
     private boolean login = false;
 
     public LoginREPL(ServerFacade facade) {
@@ -18,6 +19,7 @@ public class LoginREPL {
     public void preLoginRun() {
         out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
         out.println("Welcome to 240 Chess! Type 'help' to get started.");
+        String username = "";
 
         while(!login) {
             String[] input = getUserInputPre();
@@ -60,6 +62,7 @@ public class LoginREPL {
                         break;
                     }
                     if(facade.login(input[1], input[2])) {
+                        username = input[1];
                         login = true;
                         break;
                     }
@@ -76,10 +79,10 @@ public class LoginREPL {
             }
         }
 
-        postLoginRun();
+        postLoginRun(username);
     }
 
-    public void postLoginRun() {
+    public void postLoginRun(String username) {
         boolean inGame = false;
         List<GameData> games = new ArrayList<>();
 
@@ -97,6 +100,7 @@ public class LoginREPL {
                     preLoginRun();
                     break;
                 case "list":
+                    games = new ArrayList<>();
                     HashSet<GameData> gameList = facade.listGames();
                     games.addAll(gameList);
                     for (int i = 0; i < games.size(); i++) {
@@ -108,17 +112,48 @@ public class LoginREPL {
                     break;
                 case "create":
                     if(input.length != 2) {
-                        out.println("Please provide me with your name!");
+                        out.println("Please provide me with the game name!");
                     }
                     facade.createGame(input[1]);
-                    out.printf("Created game: %s%n", input[1]);
+                    HashSet<GameData> myGameList = facade.listGames();
+                    int gameID = myGameList.size() - 1;
+                    out.printf("Created game: %s%n with ID: %s%n", input[1], gameID);
                     break;
                 case "join":
-                    facade.joinGame();
-                    break;
+                    if (input.length != 3) {
+                        out.println("Please provide a game ID and color choice");
+                        break;
+                    }
+                    try {
+                        GameData joinGame = games.get(Integer.parseInt(input[1]));
+
+                        if (facade.joinGame(joinGame.gameID(), input[2].toUpperCase())) {
+                            out.println("You have joined the game");
+                            new CreateBoard().printBoard(null);
+                            break;
+                        } else {
+                            out.println("Game does not exist or color taken");
+                            break;
+                        }
+                    }
+                    catch(IndexOutOfBoundsException e) {
+                        out.println("There are no games to join yet!");
+                        break;
+                    }
                 case "observe":
-                    facade.observeGame();
-                    break;
+                    if (input.length != 2) {
+                        out.println("Please provide a game ID");
+                        break;
+                    }
+                    GameData observeGame = games.get(Integer.parseInt(input[1]));
+                    if (facade.joinGame(observeGame.gameID(), null)) {
+                        out.println("You have joined the game as an observer");
+                        new CreateBoard().printBoard(null);
+                        break;
+                    } else {
+                        out.println("Game does not exist");
+                        break;
+                    }
                 case "quit":
                     return;
                 default:
@@ -126,6 +161,12 @@ public class LoginREPL {
                     printHelpPost();
             }
         }
+    }
+
+    private void refreshGameList() {
+        games = new ArrayList<>();
+        HashSet<GameData> gameList = facade.listGames();
+        games.addAll(gameList);
     }
 
     private String[] getUserInputPre() {

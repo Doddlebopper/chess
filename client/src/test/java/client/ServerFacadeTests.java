@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessGame;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -107,7 +108,8 @@ public class ServerFacadeTests {
         facade.register("joinUser", "password123", "join@example.com");
         facade.login("joinUser", "password123");
         facade.createGame("Game to Join");
-        assertDoesNotThrow(() -> facade.joinGame(), "User should be able to join a game successfully");
+        String color = "white";
+        assertDoesNotThrow(() -> facade.joinGame(0, color), "User should be able to join a game successfully");
     }
 
     @Test
@@ -115,7 +117,8 @@ public class ServerFacadeTests {
     public void joinGameServerErrorTest() {
         facade.register("errorUser", "password123", "error@example.com");
         facade.login("errorUser", "password123");
-        boolean joined = facade.joinGame(); // Simulating server error in the mock
+        String color = "white";
+        boolean joined = facade.joinGame(0,color);
         assertFalse(joined, "User should fail to join the game due to server error");
     }
 
