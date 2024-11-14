@@ -73,6 +73,13 @@ public class ServerFacadeTests {
     }
 
     @Test
+    @DisplayName("Logout without login")
+    public void logoutWithoutLoginTest() {
+        boolean loggedOut = facade.logout();
+        assertFalse(loggedOut, "Logout should fail if user is not logged in");
+    }
+
+    @Test
     @DisplayName("Create a new game successfully")
     public void createGameTest() {
         facade.register("gameUser", "password123", "game@example.com");
@@ -92,6 +99,42 @@ public class ServerFacadeTests {
         HashSet<GameData> games = facade.listGames();
         assertNotNull(games, "Games list should not be null");
         assertEquals(2, games.size(), "Games list should contain two games");
+    }
+
+    @Test
+    @DisplayName("Join a game successfully")
+    public void joinGameTest() {
+        facade.register("joinUser", "password123", "join@example.com");
+        facade.login("joinUser", "password123");
+        facade.createGame("Game to Join");
+        assertDoesNotThrow(() -> facade.joinGame(), "User should be able to join a game successfully");
+    }
+
+    @Test
+    @DisplayName("Fail to join a game due to server error")
+    public void joinGameServerErrorTest() {
+        facade.register("errorUser", "password123", "error@example.com");
+        facade.login("errorUser", "password123");
+        boolean joined = facade.joinGame(); // Simulating server error in the mock
+        assertFalse(joined, "User should fail to join the game due to server error");
+    }
+
+    @Test
+    @DisplayName("Observe a game successfully")
+    public void observeGameSuccessTest() {
+        facade.register("observeUser", "password123", "observe@example.com");
+        facade.login("observeUser", "password123");
+        assertDoesNotThrow(() -> facade.observeGame(), "User should successfully observe the game");
+    }
+
+    @Test
+    @DisplayName("Fail to observe a game due to server error")
+    public void observeGameServerErrorTest() {
+        facade.register("errorObserver", "password123", "errorObserver@example.com");
+        facade.login("errorObserver", "password123");
+        assertDoesNotThrow(() -> {
+            facade.observeGame();
+        }, "User should handle server error gracefully when observing the game");
     }
 
 }

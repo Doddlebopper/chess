@@ -1,10 +1,6 @@
 package client;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import com.google.gson.Gson;
 import model.GameData;
-import ui.CreateBoard;
 
 import java.util.HashSet;
 
@@ -42,14 +38,12 @@ public class ServerFacade {
         return http.listGames();
     }
 
-    public void joinGame() {
-        CreateBoard board = new CreateBoard();
-        board.printBoard(null);
+    public boolean joinGame() {
+        return http.joinGame();
     }
 
     public void observeGame() {
-        CreateBoard board = new CreateBoard();
-        board.printBoard(null);
+        http.observeGame();
     }
 
 

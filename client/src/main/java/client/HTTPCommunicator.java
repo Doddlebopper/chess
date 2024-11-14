@@ -2,6 +2,7 @@ package client;
 
 import com.google.gson.Gson;
 import model.GameData;
+import ui.CreateBoard;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -93,8 +94,8 @@ public class HTTPCommunicator {
             return true;
         }
 
-        if(resp.containsKey("Error")) {
-            System.err.println("Logout failed: " + resp.get("Error"));
+        if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
+            System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
             return false;
         }
 
@@ -102,16 +103,34 @@ public class HTTPCommunicator {
         return true;
     }
 
-    public boolean joinGame(int gameID, String playerColor) {
-        Map<String, Object> body;
-        if (playerColor != null) {
-            body = Map.of("gameID", gameID, "playerColor", playerColor);
-        } else {
-            body = Map.of("gameID", gameID);
+    public boolean joinGame() {
+
+        Map resp = request("PUT", "/game", null);
+        if(resp == null) {
+            return true;
         }
-        var jsonBody = new Gson().toJson(body);
-        Map<String, Object> resp = request("PUT", "/game", jsonBody);
-        return !resp.containsKey("Error");
+
+        if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
+            System.err.println("Error joining game: " + resp.get("Error") + " or " + resp.get("message"));
+            return false;
+        }
+        CreateBoard board = new CreateBoard();
+        board.printBoard(null);
+        return true;
+    }
+
+    public void observeGame() {
+        Map resp = request("PUT", "/game", null);
+        if(resp == null) {
+            return;
+        }
+
+        if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
+            System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
+            return;
+        }
+        CreateBoard board = new CreateBoard();
+        board.printBoard(null);
     }
 
 
