@@ -47,7 +47,7 @@ public class HTTPCommunicator {
 
 
 
-            myFacade.setAuthToken((String) resp.get("authToken"));
+        myFacade.setAuthToken((String) resp.get("authToken"));
         return true;
     }
 
@@ -78,7 +78,8 @@ public class HTTPCommunicator {
         var body = Map.of("username", username, "password", password);
         var jsonBody = new Gson().toJson(body);
         Map resp = request("POST", "/session", jsonBody);
-        if (resp.containsKey("Error")) {
+        if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
+            System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
             return false;
         }
         myFacade.setAuthToken((String) resp.get("authToken"));

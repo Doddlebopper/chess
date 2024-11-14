@@ -11,7 +11,6 @@ import model.AuthData;
 import com.google.gson.Gson;
 
 import java.util.HashSet;
-import java.util.Map;
 
 public class Server {
     GameDAO sqlGame;
@@ -80,6 +79,11 @@ public class Server {
             response.status(500);
             return GSON.toJson(new ErrorResponse(e.getMessage()));
         }
+    }
+
+    public void clearForTesting() {
+        gameService.clear();
+        userService.clear();
     }
 
     private Object joinGameHandler(Request request, Response response) throws UnauthorizedException, BadRequestException, DataAccessException {
@@ -225,6 +229,8 @@ public class Server {
             return GSON.toJson(new ErrorResponse(e.getMessage()));
         }
     }
+
+
 
     private static class ErrorResponse {
         String message;
