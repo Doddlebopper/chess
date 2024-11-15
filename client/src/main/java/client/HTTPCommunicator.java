@@ -39,12 +39,12 @@ public class HTTPCommunicator {
         //System.out.println("Server response: " + resp);
 
         if (resp == null || resp.containsKey("Error:")) {
-            System.err.println("Registration failed: " + resp.get("Error"));
+            //System.err.println("Registration failed: " + resp.get("Error"));
             return false;
         }
 
         if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
-            System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
+            //System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
             return false;
         }
 
@@ -60,7 +60,7 @@ public class HTTPCommunicator {
         Map<String, Object> resp = request("POST", "/game", jsonBody);
 
         if (resp.containsKey("Error")) {
-            System.err.println("Error creating game: " + resp.get("Error"));
+            //System.err.println("Error creating game: " + resp.get("Error"));
             return -1;
         }
         double gameID = (double) resp.get("gameID");
@@ -82,7 +82,7 @@ public class HTTPCommunicator {
         var jsonBody = new Gson().toJson(body);
         Map resp = request("POST", "/session", jsonBody);
         if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
-            System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
+            //System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
             return false;
         }
         myFacade.setAuthToken((String) resp.get("authToken"));
@@ -97,7 +97,7 @@ public class HTTPCommunicator {
         }
 
         if (resp.containsKey("Error") || (resp.containsKey("message") && ((String) resp.get("message")).toLowerCase().contains("error"))) {
-            System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
+            //System.err.println("Error registering user: " + resp.get("Error") + " or " + resp.get("message"));
             return false;
         }
 

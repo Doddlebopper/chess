@@ -3,6 +3,7 @@ package ui;
 import client.ServerFacade;
 import model.GameData;
 
+import java.text.NumberFormat;
 import java.util.*;
 import static java.lang.System.out;
 import static ui.EscapeSequences.*;
@@ -107,7 +108,7 @@ public class LoginREPL {
                         GameData game = games.get(i);
                         String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
                         String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
-                        out.printf("%d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i, game.gameName(), whiteUser, blackUser);
+                        out.printf("Game %d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i + 1, game.gameName(), whiteUser, blackUser);
                     }
                     break;
                 case "create":
@@ -117,15 +118,19 @@ public class LoginREPL {
                     facade.createGame(input[1]);
                     HashSet<GameData> myGameList = facade.listGames();
                     int gameID = myGameList.size() - 1;
-                    out.printf("Created game: %s%n with ID: %s%n", input[1], gameID);
+                    out.printf("Created game: %s%n", input[1]);
                     break;
                 case "join":
                     if (input.length != 3) {
                         out.println("Please provide a game ID and color choice");
                         break;
                     }
+                    if(!input[2].equalsIgnoreCase("white") && (!input[2].equalsIgnoreCase("black"))) {
+                        out.println("Please provide either White or Black as your color!");
+                        break;
+                    }
                     try {
-                        GameData joinGame = games.get(Integer.parseInt(input[1]));
+                        GameData joinGame = games.get(Integer.parseInt(input[1]) - 1);
 
                         if (facade.joinGame(joinGame.gameID(), input[2].toUpperCase())) {
                             out.println("You have joined the game");
@@ -140,12 +145,20 @@ public class LoginREPL {
                         out.println("There are no games to join yet!");
                         break;
                     }
+                    catch(NumberFormatException e) {
+                        out.println("Not a valid integer");
+                        break;
+                    }
                 case "observe":
                     if (input.length != 2) {
                         out.println("Please provide a game ID");
                         break;
                     }
-                    GameData observeGame = games.get(Integer.parseInt(input[1]));
+                    if(Integer.parseInt(input[1]) < 0 || Integer.parseInt(input[1]) >= games.size()) {
+                        out.println("Make sure the game a valid ID");
+                        break;
+                    }
+                    GameData observeGame = games.get(Integer.parseInt(input[1]) - 1);
                     if (facade.joinGame(observeGame.gameID(), null)) {
                         out.println("You have joined the game as an observer");
                         new CreateBoard().printBoard(null);
