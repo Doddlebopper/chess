@@ -116,7 +116,7 @@ public class HTTPCommunicator {
             body = Map.of("gameID", ID);
         }
         var jsonBody = new Gson().toJson(body);
-        Map resp = request("PUT", "/game", jsonBody);
+        request("PUT", "/game", jsonBody);
         return true;
     }
 

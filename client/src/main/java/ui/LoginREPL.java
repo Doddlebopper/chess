@@ -37,6 +37,10 @@ public class LoginREPL {
                         out.println("Please provide a username, password, and email");
                         break;
                     }
+                    if (input[2].length() < 4) {
+                        out.println("Your password isn't strong enough. Try again!");
+                        break;
+                    }
                     if (facade.register(input[1], input[2], input[3])) {
                         out.println("You are now registered! Would you like to log in? (yes/no)");
 
