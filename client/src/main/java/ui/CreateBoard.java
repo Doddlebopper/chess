@@ -19,19 +19,7 @@ public class CreateBoard {
         this.game = new ChessGame();
     }
 
-    public void printBoard(ChessPosition selectedPos) {
-
-        String output = SET_TEXT_BOLD +
-                "\nWhite\n" +
-                generateBoard(ChessGame.TeamColor.WHITE, selectedPos) +
-                "\n" +
-                "Black\n" +
-                generateBoard(ChessGame.TeamColor.BLACK, selectedPos) +
-                RESET_TEXT_BOLD_FAINT;
-        out.println(output);
-    }
-
-    public String generateBoard(ChessGame.TeamColor color, ChessPosition selectedPos) {
+    public void generateBoard(ChessGame.TeamColor color, ChessPosition selectedPos) {
         StringBuilder output = new StringBuilder();
         output.append(SET_TEXT_BOLD);
 
@@ -50,7 +38,7 @@ public class CreateBoard {
 
             for (int i = 8; i > 0; i--) {
                 int row = !reversed ? i : (i * -1) + 9;
-                output.append(otherRows(row, reversed, possibleSquares));
+                output.append(otherRows(row, reversed, selectedPos, possibleSquares));
             }
 
             output.append(firstRow(reversed));
@@ -61,7 +49,8 @@ public class CreateBoard {
             reversed = !reversed;
         }
         output.append(RESET_TEXT_BOLD_FAINT);
-        return output.toString();
+        out.println(output);
+        out.printf("Turn: %s\n", game.getTeamTurn().toString());
     }
 
     private String firstRow(boolean reversed) {
@@ -69,7 +58,7 @@ public class CreateBoard {
         return SET_BG_COLOR_WHITE + SET_TEXT_COLOR_ORANGE + rowLabel + RESET_BG_COLOR + RESET_TEXT_COLOR + "\n";
     }
 
-    private String otherRows(int row, boolean reversed, HashSet<ChessPosition> highlightedSquares) {
+    private String otherRows(int row, boolean reversed, ChessPosition startingSquare, HashSet<ChessPosition> highlightedSquares) {
         StringBuilder output = new StringBuilder();
         output.append(SET_BG_COLOR_WHITE);
         output.append(SET_TEXT_COLOR_ORANGE);
@@ -77,7 +66,7 @@ public class CreateBoard {
 
         for (int i = 1; i < 9; i++) {
             int column = !reversed ? i : (i * -1) + 9;
-            output.append(squareColor(row, column, highlightedSquares));
+            output.append(squareColor(row, column, startingSquare, highlightedSquares));
             output.append(piece(row, column));
         }
 
@@ -91,14 +80,26 @@ public class CreateBoard {
         return output.toString();
     }
 
-    private String squareColor(int row, int column, HashSet<ChessPosition> highlightedSquares) {
+    private String squareColor(int row, int column, ChessPosition startingSquare, HashSet<ChessPosition> highlightedSquares) {
         ChessPosition square = new ChessPosition(row, column);
-        if (highlightedSquares.contains(square)) {
-            return SET_BG_COLOR_RED;
-        } else if ((row + column) % 2 == 0) {
+        if (square.equals(startingSquare)) {
             return SET_BG_COLOR_BLUE;
+        }
+        else if (highlightedSquares.contains(square)) {
+            return SET_BG_COLOR_DARK_GREEN;
+        }
+        else if (Math.ceilMod(row, 2) == 0) {
+            if (Math.ceilMod(column, 2) == 0) {
+                return SET_BG_COLOR_RED;
+            } else {
+                return SET_BG_COLOR_LIGHT_GREY;
+            }
         } else {
-            return SET_BG_COLOR_MAGENTA;
+            if (Math.ceilMod(column, 2) == 0) {
+                return SET_BG_COLOR_LIGHT_GREY;
+            } else {
+                return SET_BG_COLOR_RED;
+            }
         }
     }
 
