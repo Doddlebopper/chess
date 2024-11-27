@@ -16,5 +16,41 @@ import java.util.LinkedList;
 import static ui.EscapeSequences.ERASE_LINE;
 import static ui.EscapeSequences.moveCursorToLocation;
 
-public class WebSocketCommunicator {
+public class WebSocketCommunicator extends Endpoint {
+    Session session;
+
+    public WebSocketCommunicator(String serverDomain) throws Exception {
+        try {
+            URI uri = new URI("ws://" + serverDomain + "/connect");
+
+            WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+            this.session = container.connectToServer(this, uri);
+
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    handleMessage(message);
+                }
+            });
+        } catch(DeploymentException | IOException | URISyntaxException ex) {
+            throw new Exception();
+        }
+    }
+
+    private void handleMessage(String message) {
+        if(message.contains("\serverMessageType\":\"NOTIFICATION\"")) {
+            Notification notif = new Gson().fromJson(message, Notification.class);
+            printNotification(notif.getMessage());
+        }
+    }
+
+    private void printNotification(String message) {
+        System.out.print(ERASE_LINE + '\r');
+        System.out.printf("\n%s\n[IN-GAME] >>> ", message);
+    }
+
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {
+
+    }
 }

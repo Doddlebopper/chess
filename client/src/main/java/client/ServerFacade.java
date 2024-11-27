@@ -1,12 +1,15 @@
 package client;
 
-import chess.ChessGame;
 import model.GameData;
+import websocket.messages.ServerMessage;
+import websocket.commands.*;
 
 import java.util.HashSet;
+import java.io.IOException;
 
 public class ServerFacade {
     HTTPCommunicator http;
+    WebSocketCommunicator ws;
     String domain;
     String authToken;
 
@@ -43,8 +46,14 @@ public class ServerFacade {
         return http.joinGame(ID, color);
     }
 
-    public void observeGame() {
-        http.observeGame();
+    public void connectWS() {
+        try {
+            ws = new WebSocketCommunicator(domain);
+        }
+        catch (Exception e) {
+            System.out.println("Failed to make connection");
+        }
+
     }
 
 
@@ -57,5 +66,4 @@ public class ServerFacade {
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
-
 }

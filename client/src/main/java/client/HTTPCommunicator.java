@@ -127,7 +127,7 @@ public class HTTPCommunicator {
         }
 
         CreateBoard board = new CreateBoard();
-        board.printBoard(null);
+        //board.generateBoard(null);
     }
 
 

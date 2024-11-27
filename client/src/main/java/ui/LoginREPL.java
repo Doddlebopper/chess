@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import client.ServerFacade;
 import model.GameData;
 
@@ -134,16 +135,26 @@ public class LoginREPL {
                         break;
                     }
                     try {
-                        GameData joinGame = games.get(Integer.parseInt(input[1]) - 1);
-
-                        if (facade.joinGame(joinGame.gameID(), input[2].toUpperCase())) {
-                            out.println("You have joined the game");
-                            new CreateBoard().printBoard(null);
-                            break;
-                        } else {
-                            out.println("Game does not exist or color taken");
-                            break;
+                        int gameNum = Integer.parseInt(input[1]);
+                        if(games.isEmpty() || games.size() <= gameNum) {
+                            refreshGameList();
+                            if(games.isEmpty()) {
+                                throw new IndexOutOfBoundsException();
+                            }
+                            if(games.size() <= gameNum) {
+                                out.println("That Game ID doesn't exist!");
+                                return;
+                            }
                         }
+                        GameData joinGame = games.get(Integer.parseInt(input[1]) - 1);
+                        ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+                        if(facade.joinGame(joinGame.gameID(), input[2].toUpperCase())) {
+                            out.println("You have joined the game");
+                            inGame = true;
+                            facade.connectWS();
+
+                        }
+
                     }
                     catch(IndexOutOfBoundsException e) {
                         out.println("There are no games to join yet!");
