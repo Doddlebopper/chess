@@ -3,7 +3,7 @@ package client;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import ui.CreateBoard;
-//import ui.GameplayREPL;
+import ui.GamePlayREPL;
 import websocket.messages.Error;
 import websocket.messages.Notification;
 import websocket.messages.LoadGame;
@@ -42,11 +42,27 @@ public class WebSocketCommunicator extends Endpoint {
             Notification notify = new Gson().fromJson(message, Notification.class);
             printNotification(notify.getMessage());
         }
+        else if(message.contains("\"serverMessageType\":\"ERROR\"")) {
+            Error error = new Gson().fromJson(message, Error.class);
+            printNotification(error.getError());
+
+        }
+        else if(message.contains("\"serverMessageType\":\"LOAD_GAME\"")) {
+            LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+            printGame(loadGame.getGame());
+        }
     }
 
     private void printNotification(String message) {
         System.out.print(ERASE_LINE + '\r');
         System.out.printf("\n%s\n[IN-GAME] >>> ", message);
+    }
+
+    private void printGame(ChessGame game) {
+        System.out.print(ERASE_LINE + "\r\n");
+        GamePlayREPL.CreateBoard.newGame(game);
+        GamePlayREPL.CreateBoard.generateBoard(GamePlayREPL.color, null);
+        System.out.println("[IN-GAME] >>> ");
     }
 
     public void sendMessage(String message) {

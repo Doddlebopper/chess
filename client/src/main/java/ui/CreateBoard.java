@@ -19,6 +19,10 @@ public class CreateBoard {
         this.game = new ChessGame();
     }
 
+    public void newGame(ChessGame game) {
+        this.game = game;
+    }
+
     public void generateBoard(ChessGame.TeamColor color, ChessPosition selectedPos) {
         StringBuilder output = new StringBuilder();
         output.append(SET_TEXT_BOLD);
