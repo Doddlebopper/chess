@@ -21,4 +21,8 @@ public class GamePlayREPL {
 
         board = new CreateBoard(game);
     }
+
+    public void run() {
+
+    }
 }

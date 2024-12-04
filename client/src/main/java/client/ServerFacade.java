@@ -59,16 +59,6 @@ public class ServerFacade {
 
     }
 
-    public void closeWS() {
-        try {
-            ws.session.close();
-
-        }
-        catch(IOException e) {
-            System.out.println("Failed to connect");
-        }
-    }
-
     public void joinPlayer(int gameID, ChessGame.TeamColor color) {
         sendCommand(new Connect(authToken, gameID, color));
     }
@@ -87,10 +77,6 @@ public class ServerFacade {
 
     public void userResign(int gameID) {
         sendCommand(new Resign(authToken, gameID));
-    }
-
-    public void sendMessage(String message) {
-        ws.sendMessage(message);
     }
 
     public void sendCommand(UserGameCommand command) {

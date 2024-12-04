@@ -106,9 +106,8 @@ public class LoginREPL {
                     preLoginRun();
                     break;
                 case "list":
-                    games = new ArrayList<>();
                     HashSet<GameData> gameList = facade.listGames();
-                    games.addAll(gameList);
+                    games = new ArrayList<>(gameList);
                     for (int i = 0; i < games.size(); i++) {
                         GameData game = games.get(i);
                         String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
@@ -126,7 +125,7 @@ public class LoginREPL {
                     out.printf("Created game: %s%n", input[1]);
                     break;
                 case "join":
-                    if (input.length != 3) {
+                    if (input.length != 3 || !input[1].matches("\\d") || !input[2].toUpperCase().matches("WHITE|BLACK")) {
                         out.println("Please provide a game ID and color choice");
                         break;
                     }
@@ -152,7 +151,14 @@ public class LoginREPL {
                             out.println("You have joined the game");
                             inGame = true;
                             facade.connectWS();
+                            facade.joinPlayer(joinGame.getID(), color);
+                            GamePlayREPL gamePlayREPL = new GamePlayREPL(facade, joinGame, color);
+                            gamePlayREPL.run();
 
+                        }
+                        else {
+                            out.println("Game doesn't exist");
+                            break;
                         }
 
                     }
@@ -165,21 +171,37 @@ public class LoginREPL {
                         break;
                     }
                 case "observe":
-                    if (input.length != 2) {
+                    if (input.length != 2 || !input[1].matches("\\d")) {
                         out.println("Please provide a game ID");
                         break;
                     }
                     if(Integer.parseInt(input[1]) < 0 || Integer.parseInt(input[1]) >= games.size()) {
-                        out.println("Make sure the game a valid ID");
+                        out.println("Make sure the gameID is a valid ID");
                         break;
                     }
-                    GameData observeGame = games.get(Integer.parseInt(input[1]) - 1);
-                    if (facade.joinGame(observeGame.gameID(), null)) {
-                        out.println("You have joined the game as an observer");
-                        //new CreateBoard().generateBoard(null);
-                        break;
-                    } else {
-                        out.println("Game does not exist");
+                    int gameNum = Integer.parseInt(input[1]);
+                    if(games.isEmpty() || games.size() < gameNum) {
+                        refreshGameList();
+                        if(games.isEmpty()) {
+                            out.println("Create a game first!");
+                            break;
+                        }
+                        if(games.size() <= gameNum) {
+                            out.println("Game ID doesn't exist");
+                            break;
+                        }
+                    }
+                    GameData observeGame = games.get(gameNum);
+                    if(facade.joinGame(observeGame.getID(), null)) {
+                        out.println("You have joined the game as an observer!");
+                        inGame = true;
+                        facade.connectWS();
+                        facade.joinObserver(observeGame.getID());
+                        GamePlayREPL gamePlayRepl = new GamePlayREPL(facade, observeGame, null);
+                        gamePlayRepl.run();
+                    }
+                    else {
+                        out.println("Game does not exist!");
                         break;
                     }
                 case "quit":
