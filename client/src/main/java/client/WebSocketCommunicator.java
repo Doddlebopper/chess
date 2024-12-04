@@ -19,9 +19,9 @@ import static ui.EscapeSequences.moveCursorToLocation;
 public class WebSocketCommunicator extends Endpoint {
     Session session;
 
-    public WebSocketCommunicator(String serverDomain) throws Exception {
+    public WebSocketCommunicator(String domain) throws Exception {
         try {
-            URI uri = new URI("ws://" + serverDomain + "/connect");
+            URI uri = new URI("ws://" + domain + "/connect");
 
             WebSocketContainer container = ContainerProvider.getWebSocketContainer();
             this.session = container.connectToServer(this, uri);
@@ -38,9 +38,9 @@ public class WebSocketCommunicator extends Endpoint {
     }
 
     private void handleMessage(String message) {
-        if(message.contains("\serverMessageType\":\"NOTIFICATION\"")) {
-            Notification notif = new Gson().fromJson(message, Notification.class);
-            printNotification(notif.getMessage());
+        if(message.contains("\"serverMessageType\":\"NOTIFICATION\"")) {
+            Notification notify = new Gson().fromJson(message, Notification.class);
+            printNotification(notify.getMessage());
         }
     }
 
@@ -49,8 +49,12 @@ public class WebSocketCommunicator extends Endpoint {
         System.out.printf("\n%s\n[IN-GAME] >>> ", message);
     }
 
+    public void sendMessage(String message) {
+        this.session.getAsyncRemote().sendText(message);
+    }
+
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
-
     }
+
 }

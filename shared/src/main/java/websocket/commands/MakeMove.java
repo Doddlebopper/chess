@@ -7,7 +7,7 @@ public class MakeMove extends UserGameCommand {
     ChessMove move;
 
     public MakeMove(String authToken, int gameID, ChessMove move) throws IllegalAccessException {
-        super(CommandType.MAKE_MOVE, authToken, gameID);
+        super(CommandType.MAKE_MOVE, authToken, gameID, color);
         if(move == null) {
             throw new IllegalAccessException("Move cannot be null");
         }

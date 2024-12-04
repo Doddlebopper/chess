@@ -176,7 +176,7 @@ public class LoginREPL {
                     GameData observeGame = games.get(Integer.parseInt(input[1]) - 1);
                     if (facade.joinGame(observeGame.gameID(), null)) {
                         out.println("You have joined the game as an observer");
-                        new CreateBoard().printBoard(null);
+                        //new CreateBoard().generateBoard(null);
                         break;
                     } else {
                         out.println("Game does not exist");

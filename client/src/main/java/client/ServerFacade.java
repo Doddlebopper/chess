@@ -1,5 +1,8 @@
 package client;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import com.google.gson.Gson;
 import model.GameData;
 import websocket.messages.ServerMessage;
 import websocket.commands.*;
@@ -17,7 +20,7 @@ public class ServerFacade {
         this("localhost:8080");
     }
 
-    public ServerFacade(String domain) {
+    public ServerFacade(String domain) throws Exception{
         this.domain = domain;
         http = new HTTPCommunicator(this, domain);
     }
@@ -54,6 +57,45 @@ public class ServerFacade {
             System.out.println("Failed to make connection");
         }
 
+    }
+
+    public void closeWS() {
+        try {
+            ws.session.close();
+
+        }
+        catch(IOException e) {
+            System.out.println("Failed to connect");
+        }
+    }
+
+    public void joinPlayer(int gameID, ChessGame.TeamColor color) {
+        sendCommand(new Connect(authToken, gameID, color));
+    }
+
+    public void joinObserver(int gameID) {
+        sendCommand(new Connect(authToken, gameID, ChessGame.TeamColor.WHITE));
+    }
+
+    public void makeMove(int gameID, ChessMove move) throws IllegalAccessException {
+        sendCommand(new MakeMove(authToken, gameID, move));
+    }
+
+    public void userLeave(int gameID) {
+        sendCommand(new Leave(authToken, gameID));
+    }
+
+    public void userResign(int gameID) {
+        sendCommand(new Resign(authToken, gameID));
+    }
+
+    public void sendMessage(String message) {
+        ws.sendMessage(message);
+    }
+
+    public void sendCommand(UserGameCommand command) {
+        String message = new Gson().toJson(command);
+        ws.sendMessage(message);
     }
 
 
