@@ -18,7 +18,7 @@ public class LoginREPL {
         this.facade = facade;
     }
 
-    public void preLoginRun() {
+    public void preLoginRun() throws Exception {
         out.print(RESET_TEXT_COLOR + RESET_BG_COLOR);
         out.println("Welcome to 240 Chess! Type 'help' to get started.");
         String username = "";
@@ -88,7 +88,7 @@ public class LoginREPL {
         postLoginRun(username);
     }
 
-    public void postLoginRun(String username) {
+    public void postLoginRun(String username) throws Exception {
         boolean inGame = false;
         List<GameData> games = new ArrayList<>();
 
@@ -168,6 +168,10 @@ public class LoginREPL {
                     }
                     catch(NumberFormatException e) {
                         out.println("Not a valid integer");
+                        break;
+                    }
+                    catch(IllegalAccessException e) {
+                        out.println("MakeMove move cannot be null");
                         break;
                     }
                 case "observe":
