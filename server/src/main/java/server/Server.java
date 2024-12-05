@@ -11,6 +11,7 @@ import model.AuthData;
 import com.google.gson.Gson;
 
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
     GameDAO sqlGame;
@@ -20,6 +21,8 @@ public class Server {
     private static final Gson GSON = new Gson();
     private final UserService userService;
     private final GameService gameService;
+
+    static ConcurrentHashMap<Session, Integer> sessions = new ConcurrentHashMap<>();
 
     public Server(GameDAO gameDao, AuthDAO authDao, UserDAO userDao) {
         this.userService = new UserService(userDao, authDao);
@@ -39,6 +42,8 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+
+        Spark.webSocket("/connect", WebSocketHandler.class);
 
         registerEndPoints();
 
@@ -80,7 +85,6 @@ public class Server {
             return GSON.toJson(new ErrorResponse(e.getMessage()));
         }
     }
-    //simple public function to call for ServerFacadeTests
     public void clearForTesting() {
         gameService.clear();
         userService.clear();

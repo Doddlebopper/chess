@@ -20,9 +20,10 @@ public class ServerFacade {
         this("localhost:8080");
     }
 
-    public ServerFacade(String domain) throws Exception{
+    public ServerFacade(String domain){
         this.domain = domain;
         http = new HTTPCommunicator(this, domain);
+
     }
 
     public boolean register(String username, String password, String email) {
