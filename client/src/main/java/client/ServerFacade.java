@@ -18,6 +18,7 @@ public class ServerFacade {
 
     public ServerFacade() throws Exception {
         this("localhost:8080");
+        http = new HTTPCommunicator(this, domain);
     }
 
     public ServerFacade(String domain){
@@ -61,11 +62,11 @@ public class ServerFacade {
     }
 
     public void joinPlayer(int gameID, ChessGame.TeamColor color) {
-        sendCommand(new Connect(authToken, gameID, color));
+        sendCommand(new Connect(authToken, gameID, color, "player"));
     }
 
     public void joinObserver(int gameID) {
-        sendCommand(new Connect(authToken, gameID, ChessGame.TeamColor.WHITE));
+        sendCommand(new Connect(authToken, gameID, ChessGame.TeamColor.WHITE, "observer"));
     }
 
     public void makeMove(int gameID, ChessMove move) throws IllegalAccessException {

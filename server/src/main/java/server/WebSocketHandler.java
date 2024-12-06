@@ -7,10 +7,7 @@ import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedException;
 import model.AuthData;
 import model.GameData;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.eclipse.jetty.websocket.api.annotations.*;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.Connect;
 import websocket.commands.Leave;
@@ -47,15 +44,18 @@ public class WebSocketHandler {
     public void onMessage(Session session, String message) throws Exception {
         System.out.printf("got: %s", message);
 
-        if(message.contains("\"commandType\":\"JOIN_PLAYER\"")) {
+        if(message.contains("\"commandType\":\"CONNECT\"")) {
             Connect command = new Gson().fromJson(message, Connect.class);
             Server.sessions.replace(session, command.getID());
-            handleJoin(session, command);
-        }
-        else if(message.contains("\"commandType\":\"JOIN_OBSERVER\"")) {
-            Connect command = new Gson().fromJson(message, Connect.class);
-            Server.sessions.replace(session, command.getID());
-            handleObserve(session, command);
+            if("player".equalsIgnoreCase(command.getRole())) {
+                handleJoin(session, command);
+            }
+            else if("observer".equalsIgnoreCase(command.getRole())) {
+                handleObserve(session, command);
+            }
+            else {
+                sendError(session, new Error("Invalid role specified for CONNECT command"));
+            }
         }
         else if(message.contains("\"commandType\":\"MAKE_MOVE\"")) {
             MakeMove command = new Gson().fromJson(message, MakeMove.class);
@@ -69,6 +69,10 @@ public class WebSocketHandler {
             Resign command = new Gson().fromJson(message, Resign.class);
             handleResign(session, command);
         }
+    }
+    @OnWebSocketError
+    public void onError(Session session, Throwable throwable) {
+        LOGGER.severe("WebSocket error: " + throwable.getMessage());
     }
 
     private void handleLeave(Session session, Leave command) throws IOException {

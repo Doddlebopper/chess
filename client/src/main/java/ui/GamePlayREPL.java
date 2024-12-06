@@ -46,7 +46,7 @@ public class GamePlayREPL {
                     out.println("help - show this menu");
                     break;
                 case "redraw":
-                    CreateBoard.generateBoard(color, null);
+                    board.generateBoard(color, null);
                     break;
                 case "leave":
                     inGame = false;
@@ -66,6 +66,7 @@ public class GamePlayREPL {
                         }
 
                         facade.makeMove(gameID, new ChessMove(oldPosition, newPosition, promotionPiece));
+                        out.println("You have made a move!");
                     }
                     else {
                         out.println("Coordinates should be for example 'c3 d5'");

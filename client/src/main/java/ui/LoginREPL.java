@@ -142,13 +142,13 @@ public class LoginREPL {
                             }
                             if(games.size() <= gameNum) {
                                 out.println("That Game ID doesn't exist!");
-                                return;
+                                break;
                             }
                         }
                         GameData joinGame = games.get(Integer.parseInt(input[1]) - 1);
                         ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
                         if(facade.joinGame(joinGame.gameID(), input[2].toUpperCase())) {
-                            out.println("You have joined the game");
+                            out.println("You have joined the game. Type 'help' for your options!");
                             inGame = true;
                             facade.connectWS();
                             facade.joinPlayer(joinGame.getID(), color);

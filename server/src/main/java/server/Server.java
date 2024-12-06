@@ -42,7 +42,7 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
-        Spark.webSocket("/connect", WebSocketHandler.class);
+        Spark.webSocket("/ws", WebSocketHandler.class);
 
         registerEndPoints();
 
