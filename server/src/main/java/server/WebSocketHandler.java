@@ -1,6 +1,7 @@
 package server;
 
 import chess.ChessGame;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.BadRequestException;
 import dataaccess.UnauthorizedException;
@@ -12,6 +13,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.Connect;
+import websocket.commands.MakeMove;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
@@ -52,6 +54,10 @@ public class WebSocketHandler {
             Connect command = new Gson().fromJson(message, Connect.class);
             Server.sessions.replace(session, command.getID());
             handleObserve(session, command);
+        }
+        else if (message.contains("\"commandType\":\"MAKE_MOVE\"")) {
+            MakeMove command = new Gson().fromJson(message, MakeMove.class);
+            handleMove(session, command);
         }
     }
 
@@ -100,6 +106,59 @@ public class WebSocketHandler {
             sendError(session, new Error("Error: Not authorized"));
         } catch (BadRequestException e) {
             sendError(session, new Error("Error: Not a valid game"));
+        }
+    }
+
+    private void handleMove(Session session, MakeMove command) throws IOException {
+        try {
+            AuthData auth = Server.userService.getAuth(command.getAuthToken());
+            GameData game = Server.gameService.getData(command.getAuthToken(), command.getID());
+            ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
+
+            if(userColor == null) {
+                sendError(session, new Error("Error: You are observing"));
+                return;
+            }
+
+            if(game.game().getGameOver()) {
+                sendError(session, new Error("Error: the game is over"));
+            }
+
+            if(game.game().getTeamTurn().equals(userColor)) {
+                game.game().makeMove(command.getMove());
+
+                Notification notify;
+                ChessGame.TeamColor oppColor = userColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+
+                if(game.game().isInCheckmate(oppColor)) {
+                    notify = new Notification("Checkmate! %s wins!".formatted(auth.username()));
+                    game.game().setGameOver(true);
+                }
+                else if(game.game().isInStalemate(oppColor)) {
+                    notify = new Notification("Stalemate! It's a tie!");
+                }
+                else if(game.game().isInCheck(oppColor)) {
+                    notify = new Notification("%s is now in check!".formatted(auth.username()));
+                }
+                else {
+                    notify = new Notification("%s has made a move!".formatted(auth.username()));
+                }
+                broadcastMessageExceptCurr(session, notify);
+
+                Server.gameService.setGame(auth.authToken(), game);
+
+                LoadGame load = new LoadGame(game.game());
+                broadcastMessageAll(session, load, true);
+            }
+            else {
+                sendError(session, new Error("Error: not your turn"));
+            }
+        } catch (UnauthorizedException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: invalid game"));
+        } catch (InvalidMoveException e) {
+            sendError(session, new Error("Error: invalid move"));
         }
     }
 

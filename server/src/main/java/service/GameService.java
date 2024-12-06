@@ -86,6 +86,20 @@ public class GameService {
         }
     }
 
+    public void setGame(String authToken, GameData gameData) throws UnauthorizedException, BadRequestException {
+        try {
+            authDao.getAuth(authToken);
+        } catch (DataAccessException e) {
+            throw new UnauthorizedException("Invalid authToken");
+        }
+
+        try {
+            gameDao.updateGame(gameData);
+        } catch (DataAccessException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
 
     public void clear() {
         gameDao.clear();
