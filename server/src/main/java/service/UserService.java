@@ -66,7 +66,7 @@ public class UserService {
         try {
             return authDao.getAuth(authToken);
         } catch (DataAccessException e) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Authorization failed: Invalid authToken.");
         }
     }
 

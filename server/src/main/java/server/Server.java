@@ -15,9 +15,6 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Server {
-    GameDAO sqlGame;
-    UserDAO sqlUser;
-    AuthDAO sqlAuth;
 
     private static final Gson GSON = new Gson();
     static UserService userService;
@@ -34,8 +31,9 @@ public class Server {
         GameDAO gameDao = new SQLGameDAO();
         AuthDAO authDao = new SQLAuthDAO();
         UserDAO userDao = new SQLUserDAO();
-        this.userService = new UserService(userDao, authDao);
-        this.gameService = new GameService(gameDao, authDao, userService);
+
+        userService = new UserService(userDao, authDao);
+        gameService = new GameService(gameDao, authDao, userService);
     }
 
 

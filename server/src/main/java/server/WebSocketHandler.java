@@ -13,7 +13,9 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.Connect;
+import websocket.commands.Leave;
 import websocket.commands.MakeMove;
+import websocket.commands.Resign;
 import websocket.messages.LoadGame;
 import websocket.messages.Notification;
 import websocket.messages.ServerMessage;
@@ -50,14 +52,63 @@ public class WebSocketHandler {
             Server.sessions.replace(session, command.getID());
             handleJoin(session, command);
         }
-        else if (message.contains("\"commandType\":\"JOIN_OBSERVER\"")) {
+        else if(message.contains("\"commandType\":\"JOIN_OBSERVER\"")) {
             Connect command = new Gson().fromJson(message, Connect.class);
             Server.sessions.replace(session, command.getID());
             handleObserve(session, command);
         }
-        else if (message.contains("\"commandType\":\"MAKE_MOVE\"")) {
+        else if(message.contains("\"commandType\":\"MAKE_MOVE\"")) {
             MakeMove command = new Gson().fromJson(message, MakeMove.class);
             handleMove(session, command);
+        }
+        else if(message.contains("\"commandType\":\"LEAVE\"")) {
+            Leave command = new Gson().fromJson(message, Leave.class);
+            handleLeave(session, command);
+        }
+        else if (message.contains("\"commandType\":\"RESIGN\"")) {
+            Resign command = new Gson().fromJson(message, Resign.class);
+            handleResign(session, command);
+        }
+    }
+
+    private void handleLeave(Session session, Leave command) throws IOException {
+        try {
+            AuthData auth = Server.userService.getAuth(command.getAuthToken());
+
+            Notification notify = new Notification("%s has left the game.".formatted(auth.username()));
+            broadcastMessageExceptCurr(session, notify);
+
+            session.close();
+        } catch (UnauthorizedException e) {
+            sendError(session, new Error("Error: not authorized"));
+        }
+    }
+
+    private void handleResign(Session session, Resign command) throws IOException {
+        try {
+            AuthData auth = Server.userService.getAuth(command.getAuthToken());
+            GameData game = Server.gameService.getData(command.getAuthToken(), command.getID());
+            ChessGame.TeamColor userColor = getTeamColor(auth.username(), game);
+
+            String oppUsername = userColor == ChessGame.TeamColor.WHITE ? game.blackUsername() : game.whiteUsername();
+
+            if (userColor == null) {
+                sendError(session, new Error("Error: You are observing this game"));
+                return;
+            }
+
+            if (game.game().getGameOver()) {
+                sendError(session, new Error("Error: The game is already over!"));
+            }
+
+            game.game().setGameOver(true);
+            Server.gameService.setGame(auth.authToken(), game);
+            Notification notify = new Notification("%s has forfeited, %s wins!".formatted(auth.username(), oppUsername));
+            broadcastMessageAll(session, notify, true);
+        } catch (UnauthorizedException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: invalid game"));
         }
     }
 
