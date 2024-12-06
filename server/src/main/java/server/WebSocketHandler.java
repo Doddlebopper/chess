@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.logging.Logger;
 
-import static server.Server.sessions;
-
 @WebSocket
 public class WebSocketHandler {
 
@@ -50,6 +48,11 @@ public class WebSocketHandler {
             Server.sessions.replace(session, command.getID());
             handleJoin(session, command);
         }
+        else if (message.contains("\"commandType\":\"JOIN_OBSERVER\"")) {
+            Connect command = new Gson().fromJson(message, Connect.class);
+            Server.sessions.replace(session, command.getID());
+            handleObserve(session, command);
+        }
     }
 
     private void handleJoin(Session session, Connect command) throws IOException {
@@ -76,8 +79,27 @@ public class WebSocketHandler {
 
             LoadGame load = new LoadGame(game.game());
             sendMessage(session, load);
-        } catch (UnauthorizedException | BadRequestException e) {
-            throw new RuntimeException(e);
+        } catch (UnauthorizedException e) {
+            sendError(session, new Error("Error: not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: not a valid game"));
+        }
+    }
+
+    private void handleObserve(Session session, Connect command) throws IOException {
+        try {
+            AuthData auth = Server.userService.getAuth(command.getAuthToken());
+            GameData game = Server.gameService.getData(command.getAuthToken(), command.getID());
+
+            Notification notify = new Notification("%s has joined the game as an observer".formatted(auth.username()));
+            broadcastMessageExceptCurr(session, notify);
+
+            LoadGame load = new LoadGame(game.game());
+            sendMessage(session, load);
+        } catch (UnauthorizedException e) {
+            sendError(session, new Error("Error: Not authorized"));
+        } catch (BadRequestException e) {
+            sendError(session, new Error("Error: Not a valid game"));
         }
     }
 
