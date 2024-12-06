@@ -9,6 +9,7 @@ import service.GameService;
 import model.UserData;
 import model.AuthData;
 import com.google.gson.Gson;
+import org.eclipse.jetty.websocket.api.Session;
 
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,14 +20,14 @@ public class Server {
     AuthDAO sqlAuth;
 
     private static final Gson GSON = new Gson();
-    private final UserService userService;
-    private final GameService gameService;
+    static UserService userService;
+    static GameService gameService;
 
     static ConcurrentHashMap<Session, Integer> sessions = new ConcurrentHashMap<>();
 
     public Server(GameDAO gameDao, AuthDAO authDao, UserDAO userDao) {
-        this.userService = new UserService(userDao, authDao);
-        this.gameService = new GameService(gameDao, authDao, userService);
+        userService = new UserService(userDao, authDao);
+        gameService = new GameService(gameDao, authDao, userService);
     }
 
     public Server() {

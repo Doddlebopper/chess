@@ -96,4 +96,19 @@ public class GameService {
     private int generateGameID() {
         return Math.abs(UUID.randomUUID().hashCode());
     }
+
+    public GameData getData(String authToken, int gameID) throws UnauthorizedException, BadRequestException {
+        try {
+            authDao.getAuth(authToken);
+
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            return gameDao.getGame(gameID);
+        } catch (DataAccessException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
 }
