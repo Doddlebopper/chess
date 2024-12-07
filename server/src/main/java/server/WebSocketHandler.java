@@ -142,10 +142,10 @@ public class WebSocketHandler {
                 throw new BadRequestException("Game with ID " + command.getID() + " does not exist.");
             }
 
-            ChessGame.TeamColor color = command.getColor().toString().equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            ChessGame.TeamColor c = command.getColor().toString().equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
 
             boolean rightColor;
-            if (color == ChessGame.TeamColor.WHITE) {
+            if (c == ChessGame.TeamColor.WHITE) {
                 rightColor = Objects.equals(game.whiteUsername(), auth.username());
             } else {
                 rightColor = Objects.equals(game.blackUsername(), auth.username());
