@@ -15,7 +15,7 @@ import static ui.EscapeSequences.RESET_TEXT_COLOR;
 
 public class GamePlayREPL {
 
-    public static CreateBoard CreateBoard;
+    public static CreateBoard createBoard;
     ServerFacade facade;
     public static CreateBoard board;
     ChessGame game;
@@ -54,18 +54,7 @@ public class GamePlayREPL {
                     break;
                 case "move":
                     if(input.length >= 3 && input[1].matches("[a-h][1-8]") && input[2].matches("[a-h][1-8]")) {
-                        ChessPosition oldPosition = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'- 1));
-                        ChessPosition newPosition = new ChessPosition(input[2].charAt(1) - '0', input[2].charAt(0) - ('a'- 1));
-
-                        ChessPiece.PieceType promotionPiece = null;
-                        if(input.length == 4) {
-                            promotionPiece = pieceType(input[3]);
-                            if(promotionPiece == null) {
-                                out.println("Please provide proper promotion piece name");
-                            }
-                        }
-
-                        facade.makeMove(gameID, new ChessMove(oldPosition, newPosition, promotionPiece));
+                        makeMove(facade, input);
                         out.println("You have made a move!");
                     }
                     else {
@@ -110,6 +99,21 @@ public class GamePlayREPL {
             case "PAWN" -> ChessPiece.PieceType.PAWN;
             default -> null;
         };
+    }
+
+    private void makeMove(ServerFacade facade, String[] input) throws IllegalAccessException {
+        ChessPosition oldPosition = new ChessPosition(input[1].charAt(1) - '0', input[1].charAt(0) - ('a'- 1));
+        ChessPosition newPosition = new ChessPosition(input[2].charAt(1) - '0', input[2].charAt(0) - ('a'- 1));
+
+        ChessPiece.PieceType promotionPiece = null;
+        if(input.length == 4) {
+            promotionPiece = pieceType(input[3]);
+            if(promotionPiece == null) {
+                out.println("Please provide proper promotion piece name");
+            }
+        }
+
+        facade.makeMove(gameID, new ChessMove(oldPosition, newPosition, promotionPiece));
     }
 
     private String[] getUserInput() {

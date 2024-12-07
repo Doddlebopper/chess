@@ -56,8 +56,8 @@ public class WebSocketCommunicator extends Endpoint {
 
     private void printGame(ChessGame game) {
         System.out.print(ERASE_LINE + "\r\n");
-        GamePlayREPL.CreateBoard.newGame(game);
-        GamePlayREPL.CreateBoard.generateBoard(GamePlayREPL.color, null);
+        GamePlayREPL.createBoard.newGame(game);
+        GamePlayREPL.createBoard.generateBoard(GamePlayREPL.color, null);
         System.out.println("[IN-GAME] >>> ");
     }
 

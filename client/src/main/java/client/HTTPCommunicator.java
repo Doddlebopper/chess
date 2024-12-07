@@ -105,29 +105,19 @@ public class HTTPCommunicator {
         return true;
     }
 
-    public boolean joinGame(int ID, String color) {
-        if(ID == 0) {
+    public boolean joinGame(int id, String color) {
+        if(id == 0) {
             return false;
         }
         Map body;
         if (color != null) {
-            body = Map.of("gameID", ID, "playerColor", color);
+            body = Map.of("gameID", id, "playerColor", color);
         } else {
-            body = Map.of("gameID", ID);
+            body = Map.of("gameID", id);
         }
         var jsonBody = new Gson().toJson(body);
         request("PUT", "/game", jsonBody);
         return true;
-    }
-
-    public void observeGame() {
-        Map<String, Object> resp = request("PUT", "/game", null);
-        if(resp == null) {
-            return;
-        }
-
-        CreateBoard board = new CreateBoard();
-        //board.generateBoard(null);
     }
 
 

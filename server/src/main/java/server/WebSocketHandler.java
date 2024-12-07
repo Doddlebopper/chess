@@ -79,20 +79,6 @@ public class WebSocketHandler {
             handleResign(session, command);
         }
     }
-    /*
-    @OnWebSocketError
-    public void onError(Session session, Throwable throwable) {
-        LOGGER.severe("WebSocket error: " + throwable.getMessage());
-        throwable.printStackTrace();
-
-        // Optionally send a generic error message to the client
-        try {
-            sendError(session, new Error("Internal server error occurred."));
-        } catch (IOException e) {
-            LOGGER.severe("Failed to send error message: " + e.getMessage());
-        }
-    }
-   */
 
     private void handleLeave(Session session, Leave command) throws IOException {
         try {
@@ -170,8 +156,8 @@ public class WebSocketHandler {
                 return;
             }
 
-            Notification notify = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColor().toString()));
-            broadcastMessageExceptCurr(session, notify);
+            Notification n = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColor().toString()));
+            broadcastMessageExceptCurr(session, n);
 
             LoadGame load = new LoadGame(game.game());
             System.out.println("Sending LOAD_GAME message to: " + session.getRemoteAddress());

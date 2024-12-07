@@ -108,72 +108,18 @@ public class LoginREPL {
                 case "list":
                     HashSet<GameData> gameList = facade.listGames();
                     games = new ArrayList<>(gameList);
-                    for (int i = 0; i < games.size(); i++) {
-                        GameData game = games.get(i);
-                        String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
-                        String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
-                        out.printf("Game %d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i + 1, game.gameName(), whiteUser, blackUser);
-                    }
+                    listGames(games);
                     break;
                 case "create":
                     if(input.length != 2) {
                         out.println("Please provide me with the game name!");
                     }
                     facade.createGame(input[1]);
-                    HashSet<GameData> myGameList = facade.listGames();
-                    int gameID = myGameList.size() - 1;
                     out.printf("Created game: %s%n", input[1]);
                     break;
                 case "join":
-                    if (input.length != 3 || !input[1].matches("\\d") || !input[2].toUpperCase().matches("WHITE|BLACK")) {
-                        out.println("Please provide a game ID and color choice");
-                        break;
-                    }
-                    if(!input[2].equalsIgnoreCase("white") && (!input[2].equalsIgnoreCase("black"))) {
-                        out.println("Please provide either White or Black as your color!");
-                        break;
-                    }
-                    try {
-                        int gameNum = Integer.parseInt(input[1]);
-                        if(games.isEmpty() || games.size() <= gameNum) {
-                            refreshGameList();
-                            if(games.isEmpty()) {
-                                throw new IndexOutOfBoundsException();
-                            }
-                            if(games.size() <= gameNum) {
-                                out.println("That Game ID doesn't exist!");
-                                break;
-                            }
-                        }
-                        GameData joinGame = games.get(Integer.parseInt(input[1]) - 1);
-                        ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-                        if(facade.joinGame(joinGame.gameID(), input[2].toUpperCase())) {
-                            out.println("You have joined the game. Type 'help' for your options!");
-                            inGame = true;
-                            facade.connectWS();
-                            facade.joinPlayer(joinGame.getID(), color);
-                            GamePlayREPL gamePlayREPL = new GamePlayREPL(facade, joinGame, color);
-                            gamePlayREPL.run();
-
-                        }
-                        else {
-                            out.println("Game doesn't exist");
-                            break;
-                        }
-
-                    }
-                    catch(IndexOutOfBoundsException e) {
-                        out.println("There are no games to join yet!");
-                        break;
-                    }
-                    catch(NumberFormatException e) {
-                        out.println("Not a valid integer");
-                        break;
-                    }
-                    catch(IllegalAccessException e) {
-                        out.println("MakeMove move cannot be null");
-                        break;
-                    }
+                    joinHandler(input);
+                    break;
                 case "observe":
                     if (input.length != 2 || !input[1].matches("\\d")) {
                         out.println("Please provide a game ID");
@@ -186,19 +132,11 @@ public class LoginREPL {
                     int gameNum = Integer.parseInt(input[1]);
                     if(games.isEmpty() || games.size() < gameNum) {
                         refreshGameList();
-                        if(games.isEmpty()) {
-                            out.println("Create a game first!");
-                            break;
-                        }
-                        if(games.size() <= gameNum) {
-                            out.println("Game ID doesn't exist");
-                            break;
-                        }
+                        refreshTheGames(games, gameNum);
                     }
                     GameData observeGame = games.get(gameNum);
                     if(facade.joinGame(observeGame.getID(), null)) {
                         out.println("You have joined the game as an observer!");
-                        inGame = true;
                         facade.connectWS();
                         facade.joinObserver(observeGame.getID());
                         GamePlayREPL gamePlayRepl = new GamePlayREPL(facade, observeGame, null);
@@ -223,6 +161,16 @@ public class LoginREPL {
         games.addAll(gameList);
     }
 
+    private void refreshTheGames(List<GameData> games, int gameNum) {
+        if(games.isEmpty()) {
+            out.println("Create a game first!");
+        }
+        if(games.size() <= gameNum) {
+            out.println("Game ID doesn't exist");
+        }
+
+    }
+
     private String[] getUserInputPre() {
         out.print("\n[LOGGED OUT] >>> ");
         Scanner scanner = new Scanner(System.in);
@@ -233,6 +181,61 @@ public class LoginREPL {
         out.print("\n[LOGGED IN] >>> ");
         Scanner scanner = new Scanner(System.in);
         return scanner.nextLine().split(" ");
+    }
+
+    private void listGames(List<GameData> games) {
+        for (int i = 0; i < games.size(); i++) {
+            GameData game = games.get(i);
+            String whiteUser = game.whiteUsername() != null ? game.whiteUsername() : "open";
+            String blackUser = game.blackUsername() != null ? game.blackUsername() : "open";
+            out.printf("Game %d -- Game Name: %s  |  White User: %s  |  Black User: %s %n", i + 1, game.gameName(), whiteUser, blackUser);
+        }
+
+    }
+
+    private void joinHandler(String[] input) {
+        if (input.length != 3 || !input[1].matches("\\d") || !input[2].toUpperCase().matches("WHITE|BLACK")) {
+            out.println("Please provide a game ID and color choice");
+        }
+        if(!input[2].equalsIgnoreCase("white") && (!input[2].equalsIgnoreCase("black"))) {
+            out.println("Please provide either White or Black as your color!");
+        }
+        try {
+            int gameNum = Integer.parseInt(input[1]);
+            if(games.isEmpty() || games.size() <= gameNum) {
+                refreshGameList();
+                if(games.isEmpty()) {
+                    throw new IndexOutOfBoundsException();
+                }
+                if(games.size() <= gameNum) {
+                    out.println("That Game ID doesn't exist!");
+                }
+            }
+            GameData joinGame = games.get(Integer.parseInt(input[1]) - 1);
+            ChessGame.TeamColor color = input[2].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            if(facade.joinGame(joinGame.gameID(), input[2].toUpperCase())) {
+                out.println("You have joined the game. Type 'help' for your options!");
+                facade.connectWS();
+                facade.joinPlayer(joinGame.getID(), color);
+                GamePlayREPL gamePlayREPL = new GamePlayREPL(facade, joinGame, color);
+                gamePlayREPL.run();
+
+            }
+            else {
+                out.println("Game doesn't exist");
+            }
+
+        }
+        catch(IndexOutOfBoundsException e) {
+            out.println("There are no games to join yet!");
+        }
+        catch(NumberFormatException e) {
+            out.println("Not a valid integer");
+        }
+        catch(IllegalAccessException e) {
+            out.println("MakeMove move cannot be null");
+        }
+
     }
 
     private void printHelpPre() {

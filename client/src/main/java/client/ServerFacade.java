@@ -47,8 +47,8 @@ public class ServerFacade {
         return http.listGames();
     }
 
-    public boolean joinGame(int ID, String color) {
-        return http.joinGame(ID, color);
+    public boolean joinGame(int id, String color) {
+        return http.joinGame(id, color);
     }
 
     public void connectWS() {
