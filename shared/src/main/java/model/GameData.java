@@ -27,5 +27,4 @@ public record GameData(int gameID, String whiteUsername, String blackUsername, S
         return String.format("{\"gameID\": %d, \"whiteUsername\": \"%s\", \"blackUsername\": \"%s\", \"gameName\": \"%s\"}",
                 gameID, whiteUsername, blackUsername, gameName);
     }
-
 }
