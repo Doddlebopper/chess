@@ -5,7 +5,7 @@ import chess.ChessGame;
 public class Connect extends UserGameCommand {
     private final int gameID;
 
-    private final String role;
+    private String role;
 
     public Connect(String authToken, int gameID, ChessGame.TeamColor color, String role) {
         super(authToken);
@@ -25,5 +25,9 @@ public class Connect extends UserGameCommand {
 
     public ChessGame.TeamColor getColor() {
         return playerColor;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

@@ -62,11 +62,11 @@ public class ServerFacade {
     }
 
     public void joinPlayer(int gameID, ChessGame.TeamColor color) {
-        sendCommand(new Connect(authToken, gameID, color, "player"));
+        sendConnectCommand(authToken, gameID, color, "player");
     }
 
     public void joinObserver(int gameID) {
-        sendCommand(new Connect(authToken, gameID, ChessGame.TeamColor.WHITE, "observer"));
+        sendConnectCommand(authToken, gameID, null,"observer");
     }
 
     public void makeMove(int gameID, ChessMove move) throws IllegalAccessException {
@@ -84,6 +84,10 @@ public class ServerFacade {
     public void sendCommand(UserGameCommand command) {
         String message = new Gson().toJson(command);
         ws.sendMessage(message);
+    }
+
+    public void sendConnectCommand(String authToken, int gameID, ChessGame.TeamColor  color, String role) {
+        ws.sendConnectMessage(authToken, gameID, color, role);
     }
 
 

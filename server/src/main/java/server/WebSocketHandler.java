@@ -46,11 +46,19 @@ public class WebSocketHandler {
 
         if(message.contains("\"commandType\":\"CONNECT\"")) {
             Connect command = new Gson().fromJson(message, Connect.class);
+
+            if(command.getRole() == null || command.getRole().isEmpty()) {
+                command.setRole(command.getColor() != null ? "player" : "observer");
+            }
+
             Server.sessions.replace(session, command.getID());
+
             if("player".equalsIgnoreCase(command.getRole())) {
+                System.out.printf("Handling player join for session: %s%n", session.getRemoteAddress());
                 handleJoin(session, command);
             }
             else if("observer".equalsIgnoreCase(command.getRole())) {
+                System.out.printf("Handling observer join for session: %s%n", session.getRemoteAddress());
                 handleObserve(session, command);
             }
             else {
@@ -70,10 +78,20 @@ public class WebSocketHandler {
             handleResign(session, command);
         }
     }
+    /*
     @OnWebSocketError
     public void onError(Session session, Throwable throwable) {
         LOGGER.severe("WebSocket error: " + throwable.getMessage());
+        throwable.printStackTrace();
+
+        // Optionally send a generic error message to the client
+        try {
+            sendError(session, new Error("Internal server error occurred."));
+        } catch (IOException e) {
+            LOGGER.severe("Failed to send error message: " + e.getMessage());
+        }
     }
+   */
 
     private void handleLeave(Session session, Leave command) throws IOException {
         try {
@@ -133,12 +151,14 @@ public class WebSocketHandler {
             if (!rightColor) {
                 Error error = new Error("Error: wrong color");
                 sendError(session, error);
+                return;
             }
 
             Notification notify = new Notification("%s has joined the game as %s".formatted(auth.username(), command.getColor().toString()));
             broadcastMessageExceptCurr(session, notify);
 
             LoadGame load = new LoadGame(game.game());
+            System.out.println("Sending LOAD_GAME message to: " + session.getRemoteAddress());
             sendMessage(session, load);
         } catch (UnauthorizedException e) {
             sendError(session, new Error("Error: not authorized"));
@@ -177,6 +197,7 @@ public class WebSocketHandler {
 
             if(game.game().getGameOver()) {
                 sendError(session, new Error("Error: the game is over"));
+                return;
             }
 
             if(game.game().getTeamTurn().equals(userColor)) {
@@ -234,12 +255,13 @@ public class WebSocketHandler {
     }
 
     public void sendMessage(Session session, ServerMessage message) throws IOException {
+        System.out.printf("Sending message to session %s: %s%n", session.getRemoteAddress(), new Gson().toJson(message));
         session.getRemote().sendString(new Gson().toJson(message));
     }
 
     private void sendError(Session session, Error error) throws IOException {
-        System.out.printf("Error: %s%n", new Gson().toJson(error));
-        session.getRemote().sendString(new Gson().toJson(error));
+        System.out.printf("Error: %s%n", new Gson().toJson(error.getMessage()));
+        session.getRemote().sendString(new Gson().toJson(error.getMessage()));
     }
 
     private ChessGame.TeamColor getTeamColor(String username, GameData game) {
